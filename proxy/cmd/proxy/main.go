@@ -59,31 +59,13 @@ func run() error {
 		return fmt.Errorf("failed to generate secret: %w", err)
 	}
 
-	// Connect to Postgres with retry logic
-	log.Println("Connecting to PostgreSQL...")
+	// Connect to Postgres (NewClient handles retry logic internally)
 	ctx := context.Background()
-
-	var pgClient *postgres.Client
-	maxRetries := 4
-	for attempt := 1; attempt <= maxRetries; attempt++ {
-		pgClient, err = postgres.NewClient(ctx, connString)
-		if err == nil {
-			break
-		}
-
-		if attempt < maxRetries {
-			waitTime := time.Duration(1<<uint(attempt-1)) * 2 * time.Second
-			log.Printf("Connection failed (attempt %d/%d). Retrying in %v...", attempt, maxRetries, waitTime)
-			time.Sleep(waitTime)
-		}
-	}
-
+	pgClient, err := postgres.NewClient(ctx, connString)
 	if err != nil {
-		return fmt.Errorf("failed to connect to PostgreSQL after %d attempts: %w", maxRetries, err)
+		return fmt.Errorf("failed to connect to PostgreSQL: %w", err)
 	}
 	defer pgClient.Close()
-
-	log.Println("✓ Connected to PostgreSQL!")
 
 	// Start WebSocket server
 	wsServer := server.NewServer(secret)

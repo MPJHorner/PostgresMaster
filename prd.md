@@ -437,21 +437,21 @@ postgres-client/
 
 **File**: `proxy/pkg/postgres/client.go`
 
-- [ ] Implement `NewClient(connString)` function
-- [ ] Implement connection with pgxpool
-- [ ] Implement retry logic with exponential backoff:
-  - [ ] Attempt 1: immediate
-  - [ ] Attempt 2: wait 2s
-  - [ ] Attempt 3: wait 4s
-  - [ ] Attempt 4: wait 8s
-  - [ ] Fail with clear error message
-- [ ] Add connection pool config (MaxConns: 5, MinConns: 1)
-- [ ] Implement `Close()` method
-- [ ] Add graceful shutdown on SIGINT/SIGTERM
-- [ ] Add unit tests (mock Postgres):
-  - [ ] Test successful connection
-  - [ ] Test retry on connection failure
-  - [ ] Test failure after max retries
+- [x] Implement `NewClient(connString)` function
+- [x] Implement connection with pgxpool
+- [x] Implement retry logic with exponential backoff:
+  - [x] Attempt 1: immediate
+  - [x] Attempt 2: wait 2s
+  - [x] Attempt 3: wait 4s
+  - [x] Attempt 4: wait 8s
+  - [x] Fail with clear error message
+- [x] Add connection pool config (MaxConns: 5, MinConns: 1)
+- [x] Implement `Close()` method
+- [x] Add graceful shutdown on SIGINT/SIGTERM
+- [x] Add unit tests (mock Postgres):
+  - [x] Test successful connection
+  - [x] Test retry on connection failure
+  - [x] Test failure after max retries
 
 ### 1.7 Query Execution
 
