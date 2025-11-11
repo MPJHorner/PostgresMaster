@@ -421,17 +421,17 @@ postgres-client/
 
 **File**: `proxy/cmd/proxy/main.go`
 
-- [ ] Implement connection string parsing from CLI args
-- [ ] Implement interactive mode with prompts:
-  - [ ] Host prompt
-  - [ ] Port prompt (default: 5432)
-  - [ ] Database prompt
-  - [ ] Username prompt
-  - [ ] Password prompt (hidden input)
-  - [ ] SSL mode prompt (default: prefer)
-- [ ] Build connection string from interactive inputs
-- [ ] Add validation for required fields
-- [ ] Test both modes work correctly
+- [x] Implement connection string parsing from CLI args
+- [x] Implement interactive mode with prompts:
+  - [x] Host prompt
+  - [x] Port prompt (default: 5432)
+  - [x] Database prompt
+  - [x] Username prompt
+  - [x] Password prompt (hidden input)
+  - [x] SSL mode prompt (default: prefer)
+- [x] Build connection string from interactive inputs
+- [x] Add validation for required fields
+- [x] Test both modes work correctly
 
 ### 1.6 Postgres Connection with Retry Logic
 
