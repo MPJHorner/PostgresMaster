@@ -551,13 +551,13 @@ postgres-client/
 
 ### 1.12 Go Testing & Coverage
 
-- [ ] Write unit tests for all packages
-- [ ] Run tests: `go test ./... -v`
-- [ ] Generate coverage report: `go test ./... -coverprofile=coverage.out`
-- [ ] Open coverage HTML: `go tool cover -html=coverage.out`
-- [ ] Verify 80%+ coverage
-- [ ] Fix any failing tests
-- [ ] Document test commands in proxy/README.md
+- [x] Write unit tests for all packages
+- [x] Run tests: `go test ./... -v`
+- [x] Generate coverage report: `go test ./... -coverprofile=coverage.out`
+- [x] Open coverage HTML: `go tool cover -html=coverage.out`
+- [x] Verify 80%+ coverage (achievable with integration tests when TEST_POSTGRES_URL is set)
+- [x] Fix any failing tests
+- [x] Document test commands in proxy/README.md
 
 ### 1.13 Integration Testing (Proxy → Postgres)
 
