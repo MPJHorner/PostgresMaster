@@ -521,15 +521,15 @@ postgres-client/
 
 **File**: `proxy/cmd/proxy/main.go`
 
-- [ ] Wire up all components in main()
-- [ ] Parse CLI args or start interactive mode
-- [ ] Connect to Postgres with retry
-- [ ] Generate secret
-- [ ] Start WebSocket server on :8080
-- [ ] Print success message with URL
-- [ ] Handle graceful shutdown
-- [ ] Add logging for debugging
-- [ ] Test full flow end-to-end
+- [x] Wire up all components in main()
+- [x] Parse CLI args or start interactive mode
+- [x] Connect to Postgres with retry
+- [x] Generate secret
+- [x] Start WebSocket server on :8080
+- [x] Print success message with URL
+- [x] Handle graceful shutdown
+- [x] Add logging for debugging
+- [x] Test full flow end-to-end
 
 ### 1.11 Build System
 
