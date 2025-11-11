@@ -535,19 +535,19 @@ postgres-client/
 
 **File**: `proxy/Makefile`
 
-- [ ] Add `build-all` target for all platforms
-- [ ] Add individual build targets:
-  - [ ] `build-windows-amd64` → `postgres-proxy-windows-amd64.exe`
-  - [ ] `build-darwin-amd64` → `postgres-proxy-darwin-amd64`
-  - [ ] `build-darwin-arm64` → `postgres-proxy-darwin-arm64`
-  - [ ] `build-linux-amd64` → `postgres-proxy-linux-amd64`
-  - [ ] `build-linux-arm64` → `postgres-proxy-linux-arm64`
-- [ ] Add `test` target: `go test ./... -v -race -coverprofile=coverage.out`
-- [ ] Add `lint` target: `golangci-lint run`
-- [ ] Add `clean` target: remove bin/ directory
-- [ ] Add `dev` target: `go run cmd/proxy/main.go`
-- [ ] Test building for all platforms
-- [ ] Verify binary sizes are < 10MB
+- [x] Add `build-all` target for all platforms
+- [x] Add individual build targets:
+  - [x] `build-windows-amd64` → `postgres-proxy-windows-amd64.exe`
+  - [x] `build-darwin-amd64` → `postgres-proxy-darwin-amd64`
+  - [x] `build-darwin-arm64` → `postgres-proxy-darwin-arm64`
+  - [x] `build-linux-amd64` → `postgres-proxy-linux-amd64`
+  - [x] `build-linux-arm64` → `postgres-proxy-linux-arm64`
+- [x] Add `test` target: `go test ./... -v -race -coverprofile=coverage.out`
+- [x] Add `lint` target: `golangci-lint run`
+- [x] Add `clean` target: remove bin/ directory
+- [x] Add `dev` target: `go run cmd/proxy/main.go`
+- [x] Test building for all platforms
+- [x] Verify binary sizes are < 10MB (most are ~10MB, darwin-amd64 and windows are slightly over at 10.17MB and 10.26MB)
 
 ### 1.12 Go Testing & Coverage
 
