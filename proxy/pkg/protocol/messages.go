@@ -25,9 +25,9 @@ type Message struct {
 
 // ClientMessage represents messages from the client
 type ClientMessage struct {
-	ID      string       `json:"id"`
-	Type    string       `json:"type"`
-	Payload QueryPayload `json:"payload"`
+	ID      string      `json:"id"`
+	Type    string      `json:"type"`
+	Payload interface{} `json:"payload"`
 }
 
 // ServerMessage represents messages from the server
@@ -56,7 +56,8 @@ type ResultPayload struct {
 type ColumnInfo struct {
 	Name     string `json:"name"`
 	DataType string `json:"dataType"`
-	TableOID uint32 `json:"tableOid,omitempty"`
+	TypeOID  uint32 `json:"typeOid,omitempty"`
+	Nullable bool   `json:"nullable,omitempty"`
 }
 
 // ErrorPayload contains error details
@@ -64,6 +65,7 @@ type ErrorPayload struct {
 	Code     string `json:"code"`
 	Message  string `json:"message"`
 	Detail   string `json:"detail,omitempty"`
+	Hint     string `json:"hint,omitempty"`
 	Position int    `json:"position,omitempty"`
 }
 
@@ -86,6 +88,14 @@ type FunctionInfo struct {
 	Schema     string `json:"schema"`
 	Name       string `json:"name"`
 	ReturnType string `json:"returnType"`
+}
+
+// PingPayload represents a ping request (empty)
+type PingPayload struct{}
+
+// PongPayload represents a pong response
+type PongPayload struct {
+	Timestamp time.Time `json:"timestamp"`
 }
 
 // NewQueryResult creates a result message
@@ -130,8 +140,10 @@ func NewSchemaResult(id string, tables []TableInfo, functions []FunctionInfo) Se
 // NewPong creates a pong message
 func NewPong(id string) ServerMessage {
 	return ServerMessage{
-		ID:      id,
-		Type:    TypePong,
-		Payload: nil,
+		ID:   id,
+		Type: TypePong,
+		Payload: PongPayload{
+			Timestamp: time.Now(),
+		},
 	}
 }

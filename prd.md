@@ -404,18 +404,18 @@ postgres-client/
 
 **File**: `proxy/pkg/protocol/messages.go`
 
-- [ ] Define `Message` struct with ID, Type, Payload
-- [ ] Define `ClientMessage` types: query, introspect, ping
-- [ ] Define `ServerMessage` types: result, error, schema, pong
-- [ ] Define payload structs:
-  - [ ] `QueryPayload` (sql, params, timeout)
-  - [ ] `ResultPayload` (rows, columns, rowCount, executionTime)
-  - [ ] `ErrorPayload` (code, message, detail, position)
-  - [ ] `SchemaPayload` (tables, functions)
-- [ ] Add JSON serialization tags
-- [ ] Add unit tests:
-  - [ ] Test message serialization to JSON
-  - [ ] Test message deserialization from JSON
+- [x] Define `Message` struct with ID, Type, Payload
+- [x] Define `ClientMessage` types: query, introspect, ping
+- [x] Define `ServerMessage` types: result, error, schema, pong
+- [x] Define payload structs:
+  - [x] `QueryPayload` (sql, params, timeout)
+  - [x] `ResultPayload` (rows, columns, rowCount, executionTime)
+  - [x] `ErrorPayload` (code, message, detail, position)
+  - [x] `SchemaPayload` (tables, functions)
+- [x] Add JSON serialization tags
+- [x] Add unit tests:
+  - [x] Test message serialization to JSON
+  - [x] Test message deserialization from JSON
 
 ### 1.5 Connection String Parser & Interactive Mode
 
