@@ -1,5 +1,9 @@
 # PostgresMaster 🐘
 
+[![Tests](https://github.com/MPJHorner/PostgresMaster/actions/workflows/test.yml/badge.svg)](https://github.com/MPJHorner/PostgresMaster/actions/workflows/test.yml)
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
+[![Go Version](https://img.shields.io/badge/Go-1.21+-00ADD8?logo=go)](https://go.dev/)
+
 A browser-based PostgreSQL client that requires **zero backend infrastructure**. Connect to any Postgres database through a lightweight local proxy, with intelligent SQL autocomplete and a clean, modern interface.
 
 ## ✨ Key Features

@@ -563,12 +563,12 @@ postgres-client/
 
 **File**: `proxy/pkg/postgres/integration_test.go`
 
-- [ ] Set up test Postgres container (Docker)
-- [ ] Test full query execution flow
-- [ ] Test schema introspection
-- [ ] Test connection retry logic
-- [ ] Test error handling
-- [ ] Clean up containers after tests
+- [x] Set up test Postgres container (Docker)
+- [x] Test full query execution flow
+- [x] Test schema introspection
+- [x] Test connection retry logic
+- [x] Test error handling
+- [x] Clean up containers after tests
 
 ### 1.14 Phase 1 - Manual Testing
 
@@ -1281,12 +1281,12 @@ Create test queries file for manual testing:
 
 **File**: `.github/workflows/test.yml`
 
-- [ ] Add workflow for running tests on PR
-- [ ] Run Go tests
-- [ ] Run JS tests
-- [ ] Check test coverage
-- [ ] Run linters
-- [ ] Fail on errors
+- [x] Add workflow for running tests on PR
+- [x] Run Go tests
+- [ ] Run JS tests (deferred to Phase 2)
+- [x] Check test coverage
+- [x] Run linters
+- [x] Fail on errors
 
 **File**: `.github/workflows/release.yml`
 
