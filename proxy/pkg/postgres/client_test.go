@@ -1283,3 +1283,206 @@ func ExampleClient_IntrospectSchema() {
 			table.Schema, table.Name, table.Type, len(table.Columns))
 	}
 }
+
+// TestConvertValue tests the convertValue helper function
+func TestConvertValue(t *testing.T) {
+	client := &Client{} // Don't need a real connection for this test
+
+	testCases := []struct {
+		name     string
+		input    interface{}
+		expected interface{}
+	}{
+		{
+			name:     "nil value",
+			input:    nil,
+			expected: nil,
+		},
+		{
+			name:     "string value",
+			input:    "hello",
+			expected: "hello",
+		},
+		{
+			name:     "integer value",
+			input:    42,
+			expected: 42,
+		},
+		{
+			name:     "float value",
+			input:    3.14,
+			expected: 3.14,
+		},
+		{
+			name:     "boolean value",
+			input:    true,
+			expected: true,
+		},
+		{
+			name:     "time value",
+			input:    time.Date(2024, 1, 1, 12, 0, 0, 0, time.UTC),
+			expected: "2024-01-01T12:00:00Z",
+		},
+		{
+			name:     "byte array",
+			input:    []byte("binary data"),
+			expected: "binary data",
+		},
+		{
+			name:     "empty byte array",
+			input:    []byte{},
+			expected: "",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			result := client.convertValue(tc.input)
+			if result != tc.expected {
+				t.Errorf("convertValue(%v) = %v, want %v", tc.input, result, tc.expected)
+			}
+		})
+	}
+}
+
+// TestGetDataTypeName tests the getDataTypeName helper function
+func TestGetDataTypeName(t *testing.T) {
+	client := &Client{} // Don't need a real connection for this test
+
+	testCases := []struct {
+		name     string
+		oid      uint32
+		expected string
+	}{
+		{
+			name:     "bool type",
+			oid:      16,
+			expected: "bool",
+		},
+		{
+			name:     "int2 type",
+			oid:      21,
+			expected: "int2",
+		},
+		{
+			name:     "int4 type",
+			oid:      23,
+			expected: "int4",
+		},
+		{
+			name:     "int8 type",
+			oid:      20,
+			expected: "int8",
+		},
+		{
+			name:     "text type",
+			oid:      25,
+			expected: "text",
+		},
+		{
+			name:     "varchar type",
+			oid:      1043,
+			expected: "varchar",
+		},
+		{
+			name:     "timestamp type",
+			oid:      1114,
+			expected: "timestamp",
+		},
+		{
+			name:     "timestamptz type",
+			oid:      1184,
+			expected: "timestamptz",
+		},
+		{
+			name:     "date type",
+			oid:      1082,
+			expected: "date",
+		},
+		{
+			name:     "time type",
+			oid:      1083,
+			expected: "time",
+		},
+		{
+			name:     "json type",
+			oid:      114,
+			expected: "json",
+		},
+		{
+			name:     "jsonb type",
+			oid:      3802,
+			expected: "jsonb",
+		},
+		{
+			name:     "uuid type",
+			oid:      2950,
+			expected: "uuid",
+		},
+		{
+			name:     "numeric type",
+			oid:      1700,
+			expected: "numeric",
+		},
+		{
+			name:     "float4 type",
+			oid:      700,
+			expected: "float4",
+		},
+		{
+			name:     "float8 type",
+			oid:      701,
+			expected: "float8",
+		},
+		{
+			name:     "bytea type",
+			oid:      17,
+			expected: "bytea",
+		},
+		{
+			name:     "unknown OID",
+			oid:      99999,
+			expected: "unknown(99999)",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			result := client.getDataTypeName(tc.oid)
+			if result != tc.expected {
+				t.Errorf("getDataTypeName(%d) = %s, want %s", tc.oid, result, tc.expected)
+			}
+		})
+	}
+}
+
+// TestHandleQueryError tests the handleQueryError helper function
+func TestHandleQueryError(t *testing.T) {
+	client := &Client{} // Don't need a real connection for this test
+
+	testCases := []struct {
+		name        string
+		inputErr    error
+		expectedMsg string
+	}{
+		{
+			name:        "context deadline exceeded",
+			inputErr:    context.DeadlineExceeded,
+			expectedMsg: "query timeout exceeded",
+		},
+		{
+			name:        "generic error",
+			inputErr:    fmt.Errorf("some generic error"),
+			expectedMsg: "query failed: some generic error",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			result := client.handleQueryError(tc.inputErr)
+			if !strings.Contains(result.Error(), tc.expectedMsg) {
+				t.Errorf("handleQueryError() = %v, want error containing %q", result, tc.expectedMsg)
+			}
+		})
+	}
+}

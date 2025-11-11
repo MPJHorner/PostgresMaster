@@ -49,3 +49,5 @@ coverage/
 *.seed
 *.pid.lock
 .cache/
+proxy/coverage.html
+proxy/coverage.out
