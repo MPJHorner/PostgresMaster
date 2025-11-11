@@ -1281,12 +1281,12 @@ Create test queries file for manual testing:
 
 **File**: `.github/workflows/test.yml`
 
-- [ ] Add workflow for running tests on PR
-- [ ] Run Go tests
-- [ ] Run JS tests
-- [ ] Check test coverage
-- [ ] Run linters
-- [ ] Fail on errors
+- [x] Add workflow for running tests on PR
+- [x] Run Go tests
+- [ ] Run JS tests (deferred to Phase 2)
+- [x] Check test coverage
+- [x] Run linters
+- [x] Fail on errors
 
 **File**: `.github/workflows/release.yml`
 
