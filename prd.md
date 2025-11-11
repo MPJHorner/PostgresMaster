@@ -29,8 +29,14 @@ A browser-based SQL client for PostgreSQL that runs entirely in the browser with
 - **Autocomplete**: SQL language service with Postgres-specific extensions
 - **Schema Introspection**: Query `pg_catalog` and `information_schema` for metadata
 
-### Database Connection
-**[NEEDS CLARIFICATION]** - See Open Questions below
+### Database Engine
+- **Database**: PGlite (Postgres compiled to WebAssembly)
+- **Storage**: IndexedDB for persistence
+- **Benefits**:
+  - Runs entirely in browser (no backend/server required)
+  - Full Postgres SQL compatibility
+  - Persistent storage across sessions
+  - Import/export database capabilities
 
 ### Code Quality
 - **Formatter**: Prettier
@@ -66,35 +72,37 @@ A browser-based SQL client for PostgreSQL that runs entirely in the browser with
 - Basic result set information (execution time, rows affected)
 - Error display for failed queries
 
-### 4. Connection Management
-- Connection form with:
-  - Host/Port
-  - Database name
-  - Username/Password
-  - SSL options (if applicable)
-- Test connection capability
-- **[NEEDS CLARIFICATION]** - Connection persistence strategy
+### 4. Database Management
+- Initialize PGlite database on first load
+- Auto-persist to IndexedDB
+- Optional features:
+  - Create new database
+  - Import database from file
+  - Export database to file
+  - Clear/reset database
 
 ## User Flow
 
 1. **Initial Load**
    - User opens application in browser
-   - Presented with connection form
+   - PGlite initializes automatically
+   - Schema introspection runs (empty database initially)
+   - SQL editor ready to use
 
-2. **Connect to Database**
-   - User enters connection details
-   - App validates and establishes connection
-   - Schema introspection runs automatically
-
-3. **Write Query**
+2. **Write Query**
    - User types in SQL editor
-   - Autocomplete suggestions appear
-   - User completes query
+   - Autocomplete suggestions appear for SQL keywords and schema objects
+   - User completes query (e.g., CREATE TABLE, INSERT, SELECT)
 
-4. **Execute Query**
+3. **Execute Query**
    - User clicks "Run" or presses Ctrl+Enter
-   - Query executes
+   - Query executes in PGlite
    - Results display in table below editor
+   - Schema auto-refreshes if DDL statements executed
+
+4. **Persistent Storage**
+   - All changes automatically saved to IndexedDB
+   - Database state persists across browser sessions
 
 ## Development Standards
 
@@ -129,38 +137,21 @@ src/
 └── tests/
 ```
 
-## Open Questions
+## Implementation Decisions
 
-### Critical Questions (Blockers)
+### Confirmed for MVP
+- ✅ PGlite (Postgres WASM) - runs entirely in browser
+- ✅ Single query editor (no tabs)
+- ✅ Auto-persist database to IndexedDB
+- ✅ Display all query results (no pagination for MVP)
+- ✅ Query history: in-memory only (cleared on refresh)
 
-1. **Database Connection Method**
-   - Option A: Use PGlite (Postgres compiled to WASM) - runs entirely in browser but limited to local database
-   - Option B: Direct WebSocket connection to Postgres (requires pg_websocket extension or proxy)
-   - Option C: Connect via a lightweight proxy service (conflicts with "no backend" requirement)
-   - **Question**: Which connection method should we use? Or is the intent to work with a local WASM database?
-
-2. **Connection Persistence**
-   - Should connection credentials be saved? (LocalStorage, IndexedDB)
-   - How to handle sensitive credentials in browser storage?
-   - Should we support multiple saved connections?
-
-3. **Query History**
-   - Should we save query history?
-   - Local storage or in-memory only?
-
-### Nice-to-Have Clarifications
-
-4. **Multiple Query Editors**
-   - Single query editor or tabbed interface?
-   - For MVP, assuming single editor is sufficient?
-
-5. **Result Set Size Limits**
-   - Should we paginate large result sets?
-   - Maximum rows to display?
-
-6. **Export Functionality**
-   - Export results to CSV/JSON?
-   - Consider for v2?
+### Deferred to Post-MVP
+- Import/export database files
+- Export results to CSV/JSON
+- Query history persistence
+- Multiple query tabs
+- Result pagination for large datasets
 
 ## Success Metrics (MVP)
 - User can connect to a Postgres database from browser
