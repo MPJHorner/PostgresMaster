@@ -68,7 +68,7 @@ func run() error {
 	defer pgClient.Close()
 
 	// Start WebSocket server
-	wsServer := server.NewServer(secret)
+	wsServer := server.NewServer(secret, pgClient)
 	http.HandleFunc("/", wsServer.HandleConnection)
 
 	// Print connection URL
