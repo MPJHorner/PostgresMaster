@@ -61,7 +61,11 @@ func (s *Server) HandleConnection(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Failed to upgrade connection: %v", err)
 		return
 	}
-	defer conn.Close()
+	defer func() {
+		if err := conn.Close(); err != nil {
+			log.Printf("Error closing connection: %v", err)
+		}
+	}()
 
 	log.Println("Client connected")
 

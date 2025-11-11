@@ -33,7 +33,7 @@ func TestGenerateSecret(t *testing.T) {
 
 		// Check that secret only contains hex characters (0-9, a-f)
 		for i, c := range secret {
-			if !((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f')) {
+			if (c < '0' || c > '9') && (c < 'a' || c > 'f') {
 				t.Errorf("GenerateSecret() contains non-hex character '%c' at position %d", c, i)
 			}
 		}

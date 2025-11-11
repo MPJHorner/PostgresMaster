@@ -205,7 +205,9 @@ func TestHandleQuery_Success(t *testing.T) {
 	// Marshal and unmarshal to get the result payload
 	payloadBytes, _ := json.Marshal(response.Payload)
 	var resultPayload protocol.ResultPayload
-	json.Unmarshal(payloadBytes, &resultPayload)
+	if err := json.Unmarshal(payloadBytes, &resultPayload); err != nil {
+		t.Fatalf("Failed to unmarshal result payload: %v", err)
+	}
 
 	if resultPayload.RowCount != 1 {
 		t.Errorf("Expected row count 1, got %d", resultPayload.RowCount)
@@ -243,7 +245,9 @@ func TestHandleQuery_EmptySQL(t *testing.T) {
 
 	payloadBytes, _ := json.Marshal(response.Payload)
 	var errorPayload protocol.ErrorPayload
-	json.Unmarshal(payloadBytes, &errorPayload)
+	if err := json.Unmarshal(payloadBytes, &errorPayload); err != nil {
+		t.Fatalf("Failed to unmarshal error payload: %v", err)
+	}
 
 	if errorPayload.Code != "EMPTY_QUERY" {
 		t.Errorf("Expected error code EMPTY_QUERY, got %s", errorPayload.Code)
@@ -281,7 +285,9 @@ func TestHandleQuery_DatabaseError(t *testing.T) {
 
 	payloadBytes, _ := json.Marshal(response.Payload)
 	var errorPayload protocol.ErrorPayload
-	json.Unmarshal(payloadBytes, &errorPayload)
+	if err := json.Unmarshal(payloadBytes, &errorPayload); err != nil {
+		t.Fatalf("Failed to unmarshal error payload: %v", err)
+	}
 
 	if errorPayload.Code != "QUERY_ERROR" {
 		t.Errorf("Expected error code QUERY_ERROR, got %s", errorPayload.Code)
@@ -378,7 +384,9 @@ func TestHandleIntrospect_Success(t *testing.T) {
 
 	payloadBytes, _ := json.Marshal(response.Payload)
 	var schemaPayload protocol.SchemaPayload
-	json.Unmarshal(payloadBytes, &schemaPayload)
+	if err := json.Unmarshal(payloadBytes, &schemaPayload); err != nil {
+		t.Fatalf("Failed to unmarshal schema payload: %v", err)
+	}
 
 	if len(schemaPayload.Tables) != 1 {
 		t.Errorf("Expected 1 table, got %d", len(schemaPayload.Tables))
@@ -415,7 +423,9 @@ func TestHandleIntrospect_Error(t *testing.T) {
 
 	payloadBytes, _ := json.Marshal(response.Payload)
 	var errorPayload protocol.ErrorPayload
-	json.Unmarshal(payloadBytes, &errorPayload)
+	if err := json.Unmarshal(payloadBytes, &errorPayload); err != nil {
+		t.Fatalf("Failed to unmarshal error payload: %v", err)
+	}
 
 	if errorPayload.Code != "INTROSPECTION_ERROR" {
 		t.Errorf("Expected error code INTROSPECTION_ERROR, got %s", errorPayload.Code)
@@ -444,7 +454,11 @@ func TestHandleConnection_ValidWebSocket(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to connect to WebSocket: %v", err)
 	}
-	defer ws.Close()
+	defer func() {
+		if err := ws.Close(); err != nil {
+			t.Logf("Error closing websocket: %v", err)
+		}
+	}()
 
 	// Send a ping message
 	pingMsg := protocol.ClientMessage{
@@ -481,7 +495,11 @@ func TestSendMessage(t *testing.T) {
 			t.Fatalf("Failed to upgrade: %v", err)
 			return
 		}
-		defer conn.Close()
+		defer func() {
+			if err := conn.Close(); err != nil {
+				t.Logf("Error closing connection: %v", err)
+			}
+		}()
 
 		// Send a test message
 		msg := protocol.NewPong("test-id")
@@ -497,7 +515,11 @@ func TestSendMessage(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to connect: %v", err)
 	}
-	defer ws.Close()
+	defer func() {
+		if err := ws.Close(); err != nil {
+			t.Logf("Error closing websocket: %v", err)
+		}
+	}()
 
 	// Read the message
 	var response protocol.ServerMessage
