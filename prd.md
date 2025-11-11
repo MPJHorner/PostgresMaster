@@ -563,12 +563,12 @@ postgres-client/
 
 **File**: `proxy/pkg/postgres/integration_test.go`
 
-- [ ] Set up test Postgres container (Docker)
-- [ ] Test full query execution flow
-- [ ] Test schema introspection
-- [ ] Test connection retry logic
-- [ ] Test error handling
-- [ ] Clean up containers after tests
+- [x] Set up test Postgres container (Docker)
+- [x] Test full query execution flow
+- [x] Test schema introspection
+- [x] Test connection retry logic
+- [x] Test error handling
+- [x] Clean up containers after tests
 
 ### 1.14 Phase 1 - Manual Testing
 

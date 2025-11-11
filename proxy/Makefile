@@ -1,4 +1,4 @@
-.PHONY: build build-all clean test lint dev help
+.PHONY: build build-all clean test test-unit test-integration test-all lint dev help
 
 # Binary output directory
 BIN_DIR := bin
@@ -43,8 +43,17 @@ build-linux-arm64: ## Build for Linux (arm64)
 	mkdir -p $(BIN_DIR)
 	GOOS=linux GOARCH=arm64 go build $(LDFLAGS) -o $(BIN_DIR)/$(BINARY_NAME)-linux-arm64 $(CMD_DIR)/main.go
 
-test: ## Run tests
+test: ## Run unit tests only
 	go test ./... -v -race -coverprofile=coverage.out
+
+test-unit: test ## Alias for test (unit tests only)
+
+test-integration: ## Run integration tests (requires Docker)
+	@echo "Running integration tests..."
+	@chmod +x scripts/run-integration-tests.sh
+	@./scripts/run-integration-tests.sh
+
+test-all: test test-integration ## Run all tests (unit + integration)
 
 test-coverage: test ## Run tests and open coverage report
 	go tool cover -html=coverage.out
