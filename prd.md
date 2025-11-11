@@ -1,7 +1,9 @@
 # Product Requirements Document: Browser-Only Postgres Client (MVP)
 
 ## Overview
-A browser-based SQL client for PostgreSQL that runs entirely in the browser with no backend infrastructure required. Built with modern web technologies focusing on developer experience and code quality.
+A browser extension SQL client for PostgreSQL that connects directly to remote Postgres databases with no backend infrastructure required. Built as a Chrome/Firefox extension using modern web technologies, focusing on developer experience and code quality.
+
+**Key Innovation:** Runs entirely in the browser as an extension, leveraging extension APIs to make direct connections to remote Postgres servers without any proxy or backend service.
 
 ## Goals
 - Provide a lightweight, accessible Postgres client that runs in any modern browser
@@ -18,25 +20,28 @@ A browser-based SQL client for PostgreSQL that runs entirely in the browser with
 
 ## Tech Stack
 
+### Platform
+- **Type**: Browser Extension (Chrome/Firefox)
+- **Manifest**: Manifest V3 (Chrome), compatible with Firefox WebExtensions
+- **Build System**: Vite with extension plugin
+
 ### Framework & UI
-- **Frontend Framework**: SvelteKit
+- **Frontend Framework**: Svelte (not SvelteKit - extensions don't need SSR)
 - **UI Components**: shadcn-svelte (Svelte port of shadcn/ui)
 - **Styling**: TailwindCSS (used by shadcn-svelte)
 
 ### SQL Editor
 - **Editor**: Monaco Editor (VS Code's editor)
-- **SQL Support**: @monaco-editor/react or svelte-monaco equivalent
-- **Autocomplete**: SQL language service with Postgres-specific extensions
+- **SQL Support**: Monaco SQL language support
+- **Autocomplete**: Custom SQL language service with Postgres-specific keywords + schema-aware completions
 - **Schema Introspection**: Query `pg_catalog` and `information_schema` for metadata
 
-### Database Engine
-- **Database**: PGlite (Postgres compiled to WebAssembly)
-- **Storage**: IndexedDB for persistence
-- **Benefits**:
-  - Runs entirely in browser (no backend/server required)
-  - Full Postgres SQL compatibility
-  - Persistent storage across sessions
-  - Import/export database capabilities
+### Database Connection
+- **Client Library**: `postgres.js` or `pg` (Node.js Postgres client)
+- **Connection Method**: Direct TCP connection via extension background service worker
+- **Authentication**: Standard Postgres authentication (password, md5, scram-sha-256)
+- **SSL/TLS**: Support for SSL connections
+- **Storage**: IndexedDB for connection credentials (encrypted), query history
 
 ### Code Quality
 - **Formatter**: Prettier
@@ -72,37 +77,54 @@ A browser-based SQL client for PostgreSQL that runs entirely in the browser with
 - Basic result set information (execution time, rows affected)
 - Error display for failed queries
 
-### 4. Database Management
-- Initialize PGlite database on first load
-- Auto-persist to IndexedDB
-- Optional features:
-  - Create new database
-  - Import database from file
-  - Export database to file
-  - Clear/reset database
+### 4. Connection Management
+- Connection form with fields:
+  - Host (hostname/IP)
+  - Port (default 5432)
+  - Database name
+  - Username
+  - Password
+  - SSL mode (disable, prefer, require)
+- Save connections (encrypted in IndexedDB)
+- Quick connect to saved connections
+- Test connection button
+- Connection status indicator
 
 ## User Flow
 
-1. **Initial Load**
-   - User opens application in browser
-   - PGlite initializes automatically
-   - Schema introspection runs (empty database initially)
-   - SQL editor ready to use
+1. **Initial Setup**
+   - User installs extension from Chrome Web Store / Firefox Add-ons
+   - User clicks extension icon to open popup or side panel
+   - Presented with connection form
 
-2. **Write Query**
+2. **Connect to Database**
+   - User enters connection details (host, port, database, username, password)
+   - Optionally saves connection for future use
+   - Clicks "Connect"
+   - Extension background service establishes TCP connection to Postgres
+   - Schema introspection runs automatically
+   - Success: Editor becomes active
+
+3. **Write Query**
    - User types in SQL editor
-   - Autocomplete suggestions appear for SQL keywords and schema objects
-   - User completes query (e.g., CREATE TABLE, INSERT, SELECT)
+   - Autocomplete suggests:
+     - SQL keywords (SELECT, FROM, WHERE, JOIN, etc.)
+     - Table names from connected database
+     - Column names for referenced tables
+     - Postgres-specific functions and syntax
+   - User completes query
 
-3. **Execute Query**
+4. **Execute Query**
    - User clicks "Run" or presses Ctrl+Enter
-   - Query executes in PGlite
+   - Query sent to remote Postgres via background service
+   - Results streamed back to extension
    - Results display in table below editor
-   - Schema auto-refreshes if DDL statements executed
+   - Execution time and row count shown
 
-4. **Persistent Storage**
-   - All changes automatically saved to IndexedDB
-   - Database state persists across browser sessions
+5. **Subsequent Sessions**
+   - User reopens extension
+   - Saved connections available for quick connect
+   - Previous session state restored (last query, if applicable)
 
 ## Development Standards
 
