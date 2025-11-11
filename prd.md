@@ -392,13 +392,13 @@ postgres-client/
 
 **File**: `proxy/pkg/auth/secret.go`
 
-- [ ] Implement `GenerateSecret()` function (32 bytes, hex encoded = 64 chars)
-- [ ] Implement `ValidateSecret(secret string)` function
-- [ ] Add unit tests:
-  - [ ] Test secret length is 64 characters
-  - [ ] Test secret is hex encoded
-  - [ ] Test validation accepts valid secret
-  - [ ] Test validation rejects invalid secret
+- [x] Implement `GenerateSecret()` function (32 bytes, hex encoded = 64 chars)
+- [x] Implement `ValidateSecret(secret string)` function
+- [x] Add unit tests:
+  - [x] Test secret length is 64 characters
+  - [x] Test secret is hex encoded
+  - [x] Test validation accepts valid secret
+  - [x] Test validation rejects invalid secret
 
 ### 1.4 Message Protocol Types
 
