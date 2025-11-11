@@ -1283,19 +1283,19 @@ Create test queries file for manual testing:
 
 - [x] Add workflow for running tests on PR
 - [x] Run Go tests
-- [ ] Run JS tests (deferred to Phase 2)
+- [x] Run JS tests (with conditional check for web app existence)
 - [x] Check test coverage
 - [x] Run linters
 - [x] Fail on errors
 
 **File**: `.github/workflows/release.yml`
 
-- [ ] Add workflow for releases on tag push
-- [ ] Build proxy for all platforms
-- [ ] Calculate checksums
-- [ ] Create GitHub release
-- [ ] Upload binaries
-- [ ] (Optional) Deploy web app to Cloudflare Pages
+- [x] Add workflow for releases on tag push
+- [x] Build proxy for all platforms
+- [x] Calculate checksums
+- [x] Create GitHub release
+- [x] Upload binaries
+- [x] (Optional) Deploy web app to Cloudflare Pages
 
 ### 5.9 Security Audit
 
