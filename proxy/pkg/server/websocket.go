@@ -1,26 +1,37 @@
 package server
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/MPJHorner/PostgresMaster/proxy/pkg/auth"
+	"github.com/MPJHorner/PostgresMaster/proxy/pkg/postgres"
 	"github.com/MPJHorner/PostgresMaster/proxy/pkg/protocol"
 	"github.com/gorilla/websocket"
 )
+
+// PostgresClient defines the interface for Postgres operations
+type PostgresClient interface {
+	ExecuteQuery(ctx context.Context, sql string, params []interface{}) (*postgres.QueryResult, error)
+	IntrospectSchema(ctx context.Context) (*protocol.SchemaPayload, error)
+}
 
 // Server represents a WebSocket server
 type Server struct {
 	secret   string
 	upgrader websocket.Upgrader
+	pgClient PostgresClient
 }
 
 // NewServer creates a new WebSocket server
-func NewServer(secret string) *Server {
+func NewServer(secret string, pgClient PostgresClient) *Server {
 	return &Server{
-		secret: secret,
+		secret:   secret,
+		pgClient: pgClient,
 		upgrader: websocket.Upgrader{
 			CheckOrigin: func(r *http.Request) bool {
 				// Allow connections from localhost only
@@ -83,14 +94,64 @@ func (s *Server) handleMessage(msg protocol.ClientMessage) protocol.ServerMessag
 	case protocol.TypePing:
 		return protocol.NewPong(msg.ID)
 	case protocol.TypeQuery:
-		// TODO: Implement query execution
-		return protocol.NewError(msg.ID, "NOT_IMPLEMENTED", "Query execution not yet implemented", "")
+		return s.handleQuery(msg)
 	case protocol.TypeIntrospect:
-		// TODO: Implement schema introspection
-		return protocol.NewError(msg.ID, "NOT_IMPLEMENTED", "Schema introspection not yet implemented", "")
+		return s.handleIntrospect(msg)
 	default:
 		return protocol.NewError(msg.ID, "INVALID_MESSAGE_TYPE", fmt.Sprintf("Unknown message type: %s", msg.Type), "")
 	}
+}
+
+// handleQuery processes query execution requests
+func (s *Server) handleQuery(msg protocol.ClientMessage) protocol.ServerMessage {
+	// Parse the payload
+	payloadBytes, err := json.Marshal(msg.Payload)
+	if err != nil {
+		return protocol.NewError(msg.ID, "INVALID_PAYLOAD", "Failed to parse payload", err.Error())
+	}
+
+	var payload protocol.QueryPayload
+	if err := json.Unmarshal(payloadBytes, &payload); err != nil {
+		return protocol.NewError(msg.ID, "INVALID_PAYLOAD", "Failed to unmarshal query payload", err.Error())
+	}
+
+	// Validate SQL is not empty
+	if payload.SQL == "" {
+		return protocol.NewError(msg.ID, "EMPTY_QUERY", "SQL query cannot be empty", "")
+	}
+
+	// Create context with timeout if specified
+	ctx := context.Background()
+	if payload.Timeout > 0 {
+		var cancel context.CancelFunc
+		ctx, cancel = context.WithTimeout(ctx, time.Duration(payload.Timeout)*time.Millisecond)
+		defer cancel()
+	}
+
+	// Execute the query
+	result, err := s.pgClient.ExecuteQuery(ctx, payload.SQL, payload.Params)
+	if err != nil {
+		return protocol.NewError(msg.ID, "QUERY_ERROR", err.Error(), "")
+	}
+
+	// Return the result
+	return protocol.NewQueryResult(msg.ID, result.Rows, result.Columns, result.ExecutionTime)
+}
+
+// handleIntrospect processes schema introspection requests
+func (s *Server) handleIntrospect(msg protocol.ClientMessage) protocol.ServerMessage {
+	// Create context with reasonable timeout for introspection
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	// Introspect the schema
+	schema, err := s.pgClient.IntrospectSchema(ctx)
+	if err != nil {
+		return protocol.NewError(msg.ID, "INTROSPECTION_ERROR", err.Error(), "")
+	}
+
+	// Return the schema
+	return protocol.NewSchemaResult(msg.ID, schema.Tables, schema.Functions)
 }
 
 // SendMessage sends a message to the client

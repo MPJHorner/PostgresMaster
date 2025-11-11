@@ -502,20 +502,20 @@ postgres-client/
 
 **File**: `proxy/pkg/server/websocket.go`
 
-- [ ] Implement WebSocket upgrader with CORS
-- [ ] Implement secret validation on connection
-- [ ] Implement connection handler
-- [ ] Implement message router (switch on message type)
-- [ ] Route "query" messages to Postgres client
-- [ ] Route "introspect" messages to schema introspection
-- [ ] Route "ping" messages to pong response
-- [ ] Stream results back to client
-- [ ] Handle connection errors gracefully
-- [ ] Add request/response correlation (message IDs)
-- [ ] Add unit tests:
-  - [ ] Test WebSocket upgrade
-  - [ ] Test secret validation (valid/invalid)
-  - [ ] Test message routing
+- [x] Implement WebSocket upgrader with CORS
+- [x] Implement secret validation on connection
+- [x] Implement connection handler
+- [x] Implement message router (switch on message type)
+- [x] Route "query" messages to Postgres client
+- [x] Route "introspect" messages to schema introspection
+- [x] Route "ping" messages to pong response
+- [x] Stream results back to client
+- [x] Handle connection errors gracefully
+- [x] Add request/response correlation (message IDs)
+- [x] Add unit tests:
+  - [x] Test WebSocket upgrade
+  - [x] Test secret validation (valid/invalid)
+  - [x] Test message routing
 
 ### 1.10 Main Entry Point
 
