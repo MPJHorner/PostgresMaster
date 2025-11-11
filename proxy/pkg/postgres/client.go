@@ -2,10 +2,13 @@ package postgres
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/MPJHorner/PostgresMaster/proxy/pkg/protocol"
 )
 
 // Client represents a connection to a PostgreSQL database
@@ -78,4 +81,180 @@ func (c *Client) Close() {
 // Ping tests the database connection
 func (c *Client) Ping(ctx context.Context) error {
 	return c.pool.Ping(ctx)
+}
+
+// QueryResult contains the results of a query execution
+type QueryResult struct {
+	Rows          []map[string]interface{}
+	Columns       []protocol.ColumnInfo
+	RowCount      int
+	ExecutionTime time.Duration
+}
+
+// ExecuteQuery executes a SQL query and returns the results
+func (c *Client) ExecuteQuery(ctx context.Context, sql string, params []interface{}) (*QueryResult, error) {
+	// Measure execution time
+	startTime := time.Now()
+
+	// Execute the query
+	rows, err := c.pool.Query(ctx, sql, params...)
+	if err != nil {
+		return nil, c.handleQueryError(err)
+	}
+	defer rows.Close()
+
+	// Parse field descriptions (column metadata)
+	fieldDescriptions := rows.FieldDescriptions()
+	columns := make([]protocol.ColumnInfo, len(fieldDescriptions))
+	for i, fd := range fieldDescriptions {
+		columns[i] = protocol.ColumnInfo{
+			Name:     string(fd.Name),
+			DataType: c.getDataTypeName(fd.DataTypeOID),
+			TypeOID:  fd.DataTypeOID,
+		}
+	}
+
+	// Parse result rows
+	resultRows := []map[string]interface{}{}
+	for rows.Next() {
+		// Get values for this row
+		values, err := rows.Values()
+		if err != nil {
+			return nil, fmt.Errorf("failed to read row values: %w", err)
+		}
+
+		// Build row map
+		rowMap := make(map[string]interface{})
+		for i, col := range columns {
+			rowMap[col.Name] = c.convertValue(values[i])
+		}
+		resultRows = append(resultRows, rowMap)
+	}
+
+	// Check for errors after iteration
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("error iterating rows: %w", err)
+	}
+
+	executionTime := time.Since(startTime)
+
+	return &QueryResult{
+		Rows:          resultRows,
+		Columns:       columns,
+		RowCount:      len(resultRows),
+		ExecutionTime: executionTime,
+	}, nil
+}
+
+// convertValue converts database values to JSON-friendly types
+func (c *Client) convertValue(value interface{}) interface{} {
+	// Handle NULL values
+	if value == nil {
+		return nil
+	}
+
+	// Handle time types - convert to RFC3339 string
+	switch v := value.(type) {
+	case time.Time:
+		return v.Format(time.RFC3339)
+	case []byte:
+		// Convert byte arrays to strings for JSON compatibility
+		return string(v)
+	default:
+		// All other types are already JSON-compatible
+		return value
+	}
+}
+
+// getDataTypeName returns a human-readable name for a Postgres OID
+func (c *Client) getDataTypeName(oid uint32) string {
+	// Common Postgres type OIDs
+	// Full list: https://github.com/postgres/postgres/blob/master/src/include/catalog/pg_type.dat
+	typeNames := map[uint32]string{
+		16:   "bool",
+		17:   "bytea",
+		18:   "char",
+		19:   "name",
+		20:   "int8",
+		21:   "int2",
+		23:   "int4",
+		25:   "text",
+		114:  "json",
+		142:  "xml",
+		194:  "pg_node_tree",
+		700:  "float4",
+		701:  "float8",
+		705:  "unknown",
+		790:  "money",
+		829:  "macaddr",
+		869:  "inet",
+		1000: "_bool",
+		1001: "_bytea",
+		1002: "_char",
+		1003: "_name",
+		1005: "_int2",
+		1007: "_int4",
+		1009: "_text",
+		1014: "_bpchar",
+		1015: "_varchar",
+		1016: "_int8",
+		1021: "_float4",
+		1022: "_float8",
+		1042: "bpchar",
+		1043: "varchar",
+		1082: "date",
+		1083: "time",
+		1114: "timestamp",
+		1115: "_timestamp",
+		1182: "_date",
+		1183: "_time",
+		1184: "timestamptz",
+		1185: "_timestamptz",
+		1186: "interval",
+		1187: "_interval",
+		1231: "_numeric",
+		1266: "timetz",
+		1270: "_timetz",
+		1560: "bit",
+		1562: "varbit",
+		1700: "numeric",
+		2950: "uuid",
+		3802: "jsonb",
+	}
+
+	if name, ok := typeNames[oid]; ok {
+		return name
+	}
+	return fmt.Sprintf("unknown(%d)", oid)
+}
+
+// handleQueryError categorizes and formats query errors
+func (c *Client) handleQueryError(err error) error {
+	// Check if it's a pgconn error with code
+	var pgErr *pgconn.PgError
+	if errors.As(err, &pgErr) {
+		switch pgErr.Code {
+		case "42601": // Syntax error
+			return fmt.Errorf("syntax error: %s", pgErr.Message)
+		case "42501": // Insufficient privilege
+			return fmt.Errorf("permission denied: %s", pgErr.Message)
+		case "42P01": // Undefined table
+			return fmt.Errorf("table does not exist: %s", pgErr.Message)
+		case "42703": // Undefined column
+			return fmt.Errorf("column does not exist: %s", pgErr.Message)
+		case "57014": // Query canceled
+			return fmt.Errorf("query canceled: %s", pgErr.Message)
+		default:
+			// Return the full Postgres error
+			return fmt.Errorf("database error [%s]: %s", pgErr.Code, pgErr.Message)
+		}
+	}
+
+	// Check for context timeout
+	if errors.Is(err, context.DeadlineExceeded) {
+		return fmt.Errorf("query timeout exceeded")
+	}
+
+	// Return generic error
+	return fmt.Errorf("query failed: %w", err)
 }

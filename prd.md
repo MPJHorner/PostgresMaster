@@ -457,21 +457,21 @@ postgres-client/
 
 **File**: `proxy/pkg/postgres/client.go`
 
-- [ ] Implement `ExecuteQuery(ctx, sql, params)` function
-- [ ] Parse query results from pgx.Rows
-- [ ] Convert column types to JSON-friendly format
-- [ ] Handle NULL values correctly
-- [ ] Measure execution time
-- [ ] Return structured QueryResult
-- [ ] Add error handling for:
-  - [ ] Syntax errors
-  - [ ] Permission errors
-  - [ ] Timeout errors
-- [ ] Add unit tests:
-  - [ ] Test simple SELECT query
-  - [ ] Test query with parameters
-  - [ ] Test query with NULL values
-  - [ ] Test query timeout
+- [x] Implement `ExecuteQuery(ctx, sql, params)` function
+- [x] Parse query results from pgx.Rows
+- [x] Convert column types to JSON-friendly format
+- [x] Handle NULL values correctly
+- [x] Measure execution time
+- [x] Return structured QueryResult
+- [x] Add error handling for:
+  - [x] Syntax errors
+  - [x] Permission errors
+  - [x] Timeout errors
+- [x] Add unit tests:
+  - [x] Test simple SELECT query
+  - [x] Test query with parameters
+  - [x] Test query with NULL values
+  - [x] Test query timeout
 
 ### 1.8 Schema Introspection
 

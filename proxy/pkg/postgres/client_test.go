@@ -341,3 +341,466 @@ func ExampleClient_Ping() {
 
 	fmt.Println("Database is reachable")
 }
+
+// Tests for ExecuteQuery
+
+func TestClient_Integration_ExecuteQuery_SimpleSelect(t *testing.T) {
+	url, ok := getTestDatabaseURL()
+	if !ok {
+		t.Skip("Skipping integration test: TEST_POSTGRES_URL not set")
+	}
+
+	ctx := context.Background()
+	client, err := NewClient(ctx, url)
+	if err != nil {
+		t.Fatalf("NewClient() failed: %v", err)
+	}
+	defer client.Close()
+
+	// Execute a simple SELECT query
+	result, err := client.ExecuteQuery(ctx, "SELECT 1 as num, 'test' as text", nil)
+	if err != nil {
+		t.Fatalf("ExecuteQuery() failed: %v", err)
+	}
+
+	// Verify results
+	if result.RowCount != 1 {
+		t.Errorf("Expected 1 row, got %d", result.RowCount)
+	}
+
+	if len(result.Columns) != 2 {
+		t.Errorf("Expected 2 columns, got %d", len(result.Columns))
+	}
+
+	if len(result.Rows) != 1 {
+		t.Fatalf("Expected 1 row, got %d", len(result.Rows))
+	}
+
+	row := result.Rows[0]
+	if row["num"] == nil {
+		t.Error("Expected 'num' column to have value")
+	}
+	if row["text"] != "test" {
+		t.Errorf("Expected 'text' to be 'test', got %v", row["text"])
+	}
+
+	// Verify execution time is measured
+	if result.ExecutionTime == 0 {
+		t.Error("ExecutionTime should be non-zero")
+	}
+
+	t.Logf("Query executed in %v", result.ExecutionTime)
+}
+
+func TestClient_Integration_ExecuteQuery_WithParameters(t *testing.T) {
+	url, ok := getTestDatabaseURL()
+	if !ok {
+		t.Skip("Skipping integration test: TEST_POSTGRES_URL not set")
+	}
+
+	ctx := context.Background()
+	client, err := NewClient(ctx, url)
+	if err != nil {
+		t.Fatalf("NewClient() failed: %v", err)
+	}
+	defer client.Close()
+
+	// Execute query with parameters
+	params := []interface{}{42, "hello"}
+	result, err := client.ExecuteQuery(ctx, "SELECT $1::int as num, $2::text as text", params)
+	if err != nil {
+		t.Fatalf("ExecuteQuery() with parameters failed: %v", err)
+	}
+
+	if result.RowCount != 1 {
+		t.Errorf("Expected 1 row, got %d", result.RowCount)
+	}
+
+	row := result.Rows[0]
+	// Note: pgx returns numeric types as int32, int64, etc.
+	if numVal, ok := row["num"].(int32); !ok || numVal != 42 {
+		t.Errorf("Expected 'num' to be 42, got %v (%T)", row["num"], row["num"])
+	}
+	if row["text"] != "hello" {
+		t.Errorf("Expected 'text' to be 'hello', got %v", row["text"])
+	}
+}
+
+func TestClient_Integration_ExecuteQuery_NullValues(t *testing.T) {
+	url, ok := getTestDatabaseURL()
+	if !ok {
+		t.Skip("Skipping integration test: TEST_POSTGRES_URL not set")
+	}
+
+	ctx := context.Background()
+	client, err := NewClient(ctx, url)
+	if err != nil {
+		t.Fatalf("NewClient() failed: %v", err)
+	}
+	defer client.Close()
+
+	// Execute query with NULL values
+	result, err := client.ExecuteQuery(ctx, "SELECT NULL as null_col, 1 as int_col", nil)
+	if err != nil {
+		t.Fatalf("ExecuteQuery() failed: %v", err)
+	}
+
+	if result.RowCount != 1 {
+		t.Errorf("Expected 1 row, got %d", result.RowCount)
+	}
+
+	row := result.Rows[0]
+	if row["null_col"] != nil {
+		t.Errorf("Expected 'null_col' to be nil, got %v", row["null_col"])
+	}
+	if row["int_col"] == nil {
+		t.Error("Expected 'int_col' to have value")
+	}
+}
+
+func TestClient_Integration_ExecuteQuery_MultipleRows(t *testing.T) {
+	url, ok := getTestDatabaseURL()
+	if !ok {
+		t.Skip("Skipping integration test: TEST_POSTGRES_URL not set")
+	}
+
+	ctx := context.Background()
+	client, err := NewClient(ctx, url)
+	if err != nil {
+		t.Fatalf("NewClient() failed: %v", err)
+	}
+	defer client.Close()
+
+	// Execute query that returns multiple rows
+	result, err := client.ExecuteQuery(ctx, "SELECT generate_series(1, 10) as n", nil)
+	if err != nil {
+		t.Fatalf("ExecuteQuery() failed: %v", err)
+	}
+
+	if result.RowCount != 10 {
+		t.Errorf("Expected 10 rows, got %d", result.RowCount)
+	}
+
+	if len(result.Rows) != 10 {
+		t.Errorf("Expected 10 rows in result, got %d", len(result.Rows))
+	}
+
+	// Verify first and last rows
+	if firstVal, ok := result.Rows[0]["n"].(int32); !ok || firstVal != 1 {
+		t.Errorf("Expected first row to have n=1, got %v", result.Rows[0]["n"])
+	}
+	if lastVal, ok := result.Rows[9]["n"].(int32); !ok || lastVal != 10 {
+		t.Errorf("Expected last row to have n=10, got %v", result.Rows[9]["n"])
+	}
+}
+
+func TestClient_Integration_ExecuteQuery_DataTypes(t *testing.T) {
+	url, ok := getTestDatabaseURL()
+	if !ok {
+		t.Skip("Skipping integration test: TEST_POSTGRES_URL not set")
+	}
+
+	ctx := context.Background()
+	client, err := NewClient(ctx, url)
+	if err != nil {
+		t.Fatalf("NewClient() failed: %v", err)
+	}
+	defer client.Close()
+
+	// Execute query with various data types
+	query := `
+		SELECT
+			true as bool_col,
+			42 as int_col,
+			3.14::float as float_col,
+			'text value' as text_col,
+			NOW() as timestamp_col,
+			'2024-01-01'::date as date_col
+	`
+	result, err := client.ExecuteQuery(ctx, query, nil)
+	if err != nil {
+		t.Fatalf("ExecuteQuery() failed: %v", err)
+	}
+
+	if result.RowCount != 1 {
+		t.Errorf("Expected 1 row, got %d", result.RowCount)
+	}
+
+	row := result.Rows[0]
+
+	// Check boolean
+	if boolVal, ok := row["bool_col"].(bool); !ok || !boolVal {
+		t.Errorf("Expected 'bool_col' to be true, got %v (%T)", row["bool_col"], row["bool_col"])
+	}
+
+	// Check integer
+	if row["int_col"] == nil {
+		t.Error("Expected 'int_col' to have value")
+	}
+
+	// Check float
+	if row["float_col"] == nil {
+		t.Error("Expected 'float_col' to have value")
+	}
+
+	// Check text
+	if row["text_col"] != "text value" {
+		t.Errorf("Expected 'text_col' to be 'text value', got %v", row["text_col"])
+	}
+
+	// Check timestamp (should be converted to string in RFC3339 format)
+	if timestampStr, ok := row["timestamp_col"].(string); !ok {
+		t.Errorf("Expected 'timestamp_col' to be string, got %T", row["timestamp_col"])
+	} else {
+		// Verify it's a valid RFC3339 timestamp
+		_, err := time.Parse(time.RFC3339, timestampStr)
+		if err != nil {
+			t.Errorf("Expected 'timestamp_col' to be RFC3339 format, got %v: %v", timestampStr, err)
+		}
+	}
+
+	// Check date (should also be converted to string)
+	if dateStr, ok := row["date_col"].(string); !ok {
+		t.Errorf("Expected 'date_col' to be string, got %T", row["date_col"])
+	} else {
+		// Verify it's a valid timestamp
+		_, err := time.Parse(time.RFC3339, dateStr)
+		if err != nil {
+			t.Errorf("Expected 'date_col' to be RFC3339 format, got %v: %v", dateStr, err)
+		}
+	}
+
+	// Verify column metadata
+	if len(result.Columns) != 6 {
+		t.Errorf("Expected 6 columns, got %d", len(result.Columns))
+	}
+
+	// Check that column data types are set
+	for _, col := range result.Columns {
+		if col.Name == "" {
+			t.Error("Column name should not be empty")
+		}
+		if col.DataType == "" {
+			t.Errorf("Column %s should have data type", col.Name)
+		}
+		t.Logf("Column: %s, Type: %s, OID: %d", col.Name, col.DataType, col.TypeOID)
+	}
+}
+
+func TestClient_Integration_ExecuteQuery_Timeout(t *testing.T) {
+	url, ok := getTestDatabaseURL()
+	if !ok {
+		t.Skip("Skipping integration test: TEST_POSTGRES_URL not set")
+	}
+
+	client, err := NewClient(context.Background(), url)
+	if err != nil {
+		t.Fatalf("NewClient() failed: %v", err)
+	}
+	defer client.Close()
+
+	// Create context with very short timeout
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Millisecond)
+	defer cancel()
+
+	// Execute a query that takes longer than the timeout
+	// pg_sleep(1) sleeps for 1 second
+	_, err = client.ExecuteQuery(ctx, "SELECT pg_sleep(1)", nil)
+
+	if err == nil {
+		t.Fatal("Expected timeout error, got nil")
+	}
+
+	// Verify it's a timeout error
+	if !strings.Contains(err.Error(), "timeout") && !strings.Contains(err.Error(), "canceled") {
+		t.Errorf("Expected timeout or canceled error, got: %v", err)
+	}
+
+	t.Logf("Query timeout error: %v", err)
+}
+
+func TestClient_Integration_ExecuteQuery_SyntaxError(t *testing.T) {
+	url, ok := getTestDatabaseURL()
+	if !ok {
+		t.Skip("Skipping integration test: TEST_POSTGRES_URL not set")
+	}
+
+	ctx := context.Background()
+	client, err := NewClient(ctx, url)
+	if err != nil {
+		t.Fatalf("NewClient() failed: %v", err)
+	}
+	defer client.Close()
+
+	// Execute query with syntax error
+	_, err = client.ExecuteQuery(ctx, "SELECT * FROM WHERE", nil)
+
+	if err == nil {
+		t.Fatal("Expected syntax error, got nil")
+	}
+
+	// Verify error message mentions syntax
+	if !strings.Contains(err.Error(), "syntax") {
+		t.Errorf("Expected 'syntax' in error message, got: %v", err)
+	}
+
+	t.Logf("Syntax error: %v", err)
+}
+
+func TestClient_Integration_ExecuteQuery_TableNotFound(t *testing.T) {
+	url, ok := getTestDatabaseURL()
+	if !ok {
+		t.Skip("Skipping integration test: TEST_POSTGRES_URL not set")
+	}
+
+	ctx := context.Background()
+	client, err := NewClient(ctx, url)
+	if err != nil {
+		t.Fatalf("NewClient() failed: %v", err)
+	}
+	defer client.Close()
+
+	// Execute query on non-existent table
+	_, err = client.ExecuteQuery(ctx, "SELECT * FROM nonexistent_table_12345", nil)
+
+	if err == nil {
+		t.Fatal("Expected table not found error, got nil")
+	}
+
+	// Verify error message mentions table
+	if !strings.Contains(err.Error(), "table") && !strings.Contains(err.Error(), "exist") {
+		t.Errorf("Expected 'table' or 'exist' in error message, got: %v", err)
+	}
+
+	t.Logf("Table not found error: %v", err)
+}
+
+func TestClient_Integration_ExecuteQuery_EmptyResult(t *testing.T) {
+	url, ok := getTestDatabaseURL()
+	if !ok {
+		t.Skip("Skipping integration test: TEST_POSTGRES_URL not set")
+	}
+
+	ctx := context.Background()
+	client, err := NewClient(ctx, url)
+	if err != nil {
+		t.Fatalf("NewClient() failed: %v", err)
+	}
+	defer client.Close()
+
+	// Execute query that returns no rows
+	result, err := client.ExecuteQuery(ctx, "SELECT 1 as n WHERE false", nil)
+	if err != nil {
+		t.Fatalf("ExecuteQuery() failed: %v", err)
+	}
+
+	if result.RowCount != 0 {
+		t.Errorf("Expected 0 rows, got %d", result.RowCount)
+	}
+
+	if len(result.Rows) != 0 {
+		t.Errorf("Expected empty rows array, got %d rows", len(result.Rows))
+	}
+
+	// Should still have column metadata
+	if len(result.Columns) != 1 {
+		t.Errorf("Expected 1 column in metadata, got %d", len(result.Columns))
+	}
+}
+
+func TestClient_Integration_ExecuteQuery_InsertUpdate(t *testing.T) {
+	url, ok := getTestDatabaseURL()
+	if !ok {
+		t.Skip("Skipping integration test: TEST_POSTGRES_URL not set")
+	}
+
+	ctx := context.Background()
+	client, err := NewClient(ctx, url)
+	if err != nil {
+		t.Fatalf("NewClient() failed: %v", err)
+	}
+	defer client.Close()
+
+	// Create a temporary table
+	_, err = client.ExecuteQuery(ctx, "CREATE TEMP TABLE test_table (id serial PRIMARY KEY, name text)", nil)
+	if err != nil {
+		t.Fatalf("Failed to create temp table: %v", err)
+	}
+
+	// Insert data
+	result, err := client.ExecuteQuery(ctx, "INSERT INTO test_table (name) VALUES ('test1'), ('test2') RETURNING id, name", nil)
+	if err != nil {
+		t.Fatalf("INSERT query failed: %v", err)
+	}
+
+	if result.RowCount != 2 {
+		t.Errorf("Expected 2 rows inserted, got %d", result.RowCount)
+	}
+
+	// Update data
+	_, err = client.ExecuteQuery(ctx, "UPDATE test_table SET name = 'updated' WHERE name = 'test1'", nil)
+	if err != nil {
+		t.Fatalf("UPDATE query failed: %v", err)
+	}
+
+	// Verify update
+	result, err = client.ExecuteQuery(ctx, "SELECT name FROM test_table WHERE name = 'updated'", nil)
+	if err != nil {
+		t.Fatalf("SELECT after UPDATE failed: %v", err)
+	}
+
+	if result.RowCount != 1 {
+		t.Errorf("Expected 1 updated row, got %d", result.RowCount)
+	}
+
+	// Delete data
+	_, err = client.ExecuteQuery(ctx, "DELETE FROM test_table", nil)
+	if err != nil {
+		t.Fatalf("DELETE query failed: %v", err)
+	}
+}
+
+// Benchmark for ExecuteQuery
+
+func BenchmarkClient_ExecuteQuery(b *testing.B) {
+	url, ok := getTestDatabaseURL()
+	if !ok {
+		b.Skip("Skipping benchmark: TEST_POSTGRES_URL not set")
+	}
+
+	ctx := context.Background()
+	client, err := NewClient(ctx, url)
+	if err != nil {
+		b.Fatalf("NewClient() failed: %v", err)
+	}
+	defer client.Close()
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_, err := client.ExecuteQuery(ctx, "SELECT 1", nil)
+		if err != nil {
+			b.Fatalf("ExecuteQuery() failed: %v", err)
+		}
+	}
+}
+
+func ExampleClient_ExecuteQuery() {
+	ctx := context.Background()
+	client, err := NewClient(ctx, "postgres://user:pass@localhost:5432/mydb")
+	if err != nil {
+		fmt.Printf("Failed to connect: %v\n", err)
+		return
+	}
+	defer client.Close()
+
+	result, err := client.ExecuteQuery(ctx, "SELECT * FROM users WHERE id = $1", []interface{}{42})
+	if err != nil {
+		fmt.Printf("Query failed: %v\n", err)
+		return
+	}
+
+	fmt.Printf("Query returned %d rows in %v\n", result.RowCount, result.ExecutionTime)
+	for _, row := range result.Rows {
+		fmt.Printf("Row: %v\n", row)
+	}
+}
