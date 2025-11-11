@@ -7,6 +7,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/MPJHorner/PostgresMaster/proxy/pkg/protocol"
 )
 
 // TestNewClient_InvalidConnectionString tests that NewClient fails immediately with invalid connection string
@@ -802,5 +804,482 @@ func ExampleClient_ExecuteQuery() {
 	fmt.Printf("Query returned %d rows in %v\n", result.RowCount, result.ExecutionTime)
 	for _, row := range result.Rows {
 		fmt.Printf("Row: %v\n", row)
+	}
+}
+
+// Tests for IntrospectSchema
+
+func TestClient_Integration_IntrospectSchema_EmptyDatabase(t *testing.T) {
+	url, ok := getTestDatabaseURL()
+	if !ok {
+		t.Skip("Skipping integration test: TEST_POSTGRES_URL not set")
+	}
+
+	ctx := context.Background()
+	client, err := NewClient(ctx, url)
+	if err != nil {
+		t.Fatalf("NewClient() failed: %v", err)
+	}
+	defer client.Close()
+
+	// Introspect schema
+	schema, err := client.IntrospectSchema(ctx)
+	if err != nil {
+		t.Fatalf("IntrospectSchema() failed: %v", err)
+	}
+
+	// Verify schema is not nil
+	if schema == nil {
+		t.Fatal("Expected schema to be non-nil")
+	}
+
+	// In a fresh database, there might be no user tables
+	// but the query should still succeed
+	t.Logf("Found %d tables and %d functions", len(schema.Tables), len(schema.Functions))
+}
+
+func TestClient_Integration_IntrospectSchema_WithTables(t *testing.T) {
+	url, ok := getTestDatabaseURL()
+	if !ok {
+		t.Skip("Skipping integration test: TEST_POSTGRES_URL not set")
+	}
+
+	ctx := context.Background()
+	client, err := NewClient(ctx, url)
+	if err != nil {
+		t.Fatalf("NewClient() failed: %v", err)
+	}
+	defer client.Close()
+
+	// Create a test table
+	_, err = client.ExecuteQuery(ctx, `
+		CREATE TEMP TABLE test_users (
+			id serial PRIMARY KEY,
+			username text NOT NULL,
+			email text,
+			created_at timestamp DEFAULT NOW()
+		)
+	`, nil)
+	if err != nil {
+		t.Fatalf("Failed to create test table: %v", err)
+	}
+
+	// Introspect schema
+	schema, err := client.IntrospectSchema(ctx)
+	if err != nil {
+		t.Fatalf("IntrospectSchema() failed: %v", err)
+	}
+
+	// Find the test_users table
+	var testUsersTable *protocol.TableInfo
+	for i := range schema.Tables {
+		if schema.Tables[i].Name == "test_users" {
+			testUsersTable = &schema.Tables[i]
+			break
+		}
+	}
+
+	if testUsersTable == nil {
+		t.Fatal("Expected to find test_users table in schema")
+	}
+
+	// Verify table properties
+	if testUsersTable.Type != "table" {
+		t.Errorf("Expected table type to be 'table', got %s", testUsersTable.Type)
+	}
+
+	// Verify columns
+	expectedColumns := map[string]bool{
+		"id":         false,
+		"username":   false,
+		"email":      false,
+		"created_at": false,
+	}
+
+	if len(testUsersTable.Columns) != len(expectedColumns) {
+		t.Errorf("Expected %d columns, got %d", len(expectedColumns), len(testUsersTable.Columns))
+	}
+
+	for _, col := range testUsersTable.Columns {
+		if _, exists := expectedColumns[col.Name]; !exists {
+			t.Errorf("Unexpected column: %s", col.Name)
+		}
+		expectedColumns[col.Name] = true
+
+		// Verify column has data type
+		if col.DataType == "" {
+			t.Errorf("Column %s should have data type", col.Name)
+		}
+
+		// Verify specific column properties
+		if col.Name == "username" {
+			if col.Nullable {
+				t.Error("Column 'username' should not be nullable")
+			}
+		}
+		if col.Name == "email" {
+			if !col.Nullable {
+				t.Error("Column 'email' should be nullable")
+			}
+		}
+
+		t.Logf("Column: %s, Type: %s, Nullable: %v", col.Name, col.DataType, col.Nullable)
+	}
+
+	// Verify all expected columns were found
+	for colName, found := range expectedColumns {
+		if !found {
+			t.Errorf("Expected column %s not found", colName)
+		}
+	}
+}
+
+func TestClient_Integration_IntrospectSchema_WithViews(t *testing.T) {
+	url, ok := getTestDatabaseURL()
+	if !ok {
+		t.Skip("Skipping integration test: TEST_POSTGRES_URL not set")
+	}
+
+	ctx := context.Background()
+	client, err := NewClient(ctx, url)
+	if err != nil {
+		t.Fatalf("NewClient() failed: %v", err)
+	}
+	defer client.Close()
+
+	// Create a test table
+	_, err = client.ExecuteQuery(ctx, `
+		CREATE TEMP TABLE test_products (
+			id serial PRIMARY KEY,
+			name text NOT NULL,
+			price numeric(10,2)
+		)
+	`, nil)
+	if err != nil {
+		t.Fatalf("Failed to create test table: %v", err)
+	}
+
+	// Create a test view
+	_, err = client.ExecuteQuery(ctx, `
+		CREATE TEMP VIEW test_expensive_products AS
+		SELECT id, name, price FROM test_products WHERE price > 100
+	`, nil)
+	if err != nil {
+		t.Fatalf("Failed to create test view: %v", err)
+	}
+
+	// Introspect schema
+	schema, err := client.IntrospectSchema(ctx)
+	if err != nil {
+		t.Fatalf("IntrospectSchema() failed: %v", err)
+	}
+
+	// Find the test view
+	var testView *protocol.TableInfo
+	for i := range schema.Tables {
+		if schema.Tables[i].Name == "test_expensive_products" {
+			testView = &schema.Tables[i]
+			break
+		}
+	}
+
+	if testView == nil {
+		t.Fatal("Expected to find test_expensive_products view in schema")
+	}
+
+	// Verify it's identified as a view
+	if testView.Type != "view" {
+		t.Errorf("Expected type to be 'view', got %s", testView.Type)
+	}
+
+	// Verify view has columns
+	if len(testView.Columns) != 3 {
+		t.Errorf("Expected 3 columns in view, got %d", len(testView.Columns))
+	}
+
+	t.Logf("View: %s.%s (type: %s) with %d columns", testView.Schema, testView.Name, testView.Type, len(testView.Columns))
+}
+
+func TestClient_Integration_IntrospectSchema_WithFunctions(t *testing.T) {
+	url, ok := getTestDatabaseURL()
+	if !ok {
+		t.Skip("Skipping integration test: TEST_POSTGRES_URL not set")
+	}
+
+	ctx := context.Background()
+	client, err := NewClient(ctx, url)
+	if err != nil {
+		t.Fatalf("NewClient() failed: %v", err)
+	}
+	defer client.Close()
+
+	// Create a test function
+	_, err = client.ExecuteQuery(ctx, `
+		CREATE OR REPLACE FUNCTION test_add_numbers(a integer, b integer)
+		RETURNS integer AS $$
+		BEGIN
+			RETURN a + b;
+		END;
+		$$ LANGUAGE plpgsql
+	`, nil)
+	if err != nil {
+		t.Fatalf("Failed to create test function: %v", err)
+	}
+
+	// Introspect schema
+	schema, err := client.IntrospectSchema(ctx)
+	if err != nil {
+		t.Fatalf("IntrospectSchema() failed: %v", err)
+	}
+
+	// Find the test function
+	var testFunc *protocol.FunctionInfo
+	for i := range schema.Functions {
+		if schema.Functions[i].Name == "test_add_numbers" {
+			testFunc = &schema.Functions[i]
+			break
+		}
+	}
+
+	if testFunc == nil {
+		t.Fatal("Expected to find test_add_numbers function in schema")
+	}
+
+	// Verify function properties
+	if testFunc.ReturnType == "" {
+		t.Error("Expected function to have return type")
+	}
+
+	t.Logf("Function: %s.%s returns %s", testFunc.Schema, testFunc.Name, testFunc.ReturnType)
+
+	// Clean up
+	_, err = client.ExecuteQuery(ctx, "DROP FUNCTION IF EXISTS test_add_numbers(integer, integer)", nil)
+	if err != nil {
+		t.Logf("Warning: Failed to clean up test function: %v", err)
+	}
+}
+
+func TestClient_Integration_IntrospectSchema_MultipleSchemas(t *testing.T) {
+	url, ok := getTestDatabaseURL()
+	if !ok {
+		t.Skip("Skipping integration test: TEST_POSTGRES_URL not set")
+	}
+
+	ctx := context.Background()
+	client, err := NewClient(ctx, url)
+	if err != nil {
+		t.Fatalf("NewClient() failed: %v", err)
+	}
+	defer client.Close()
+
+	// Create a custom schema
+	_, err = client.ExecuteQuery(ctx, "CREATE SCHEMA IF NOT EXISTS test_schema", nil)
+	if err != nil {
+		t.Fatalf("Failed to create test schema: %v", err)
+	}
+	defer func() {
+		_, _ = client.ExecuteQuery(ctx, "DROP SCHEMA IF EXISTS test_schema CASCADE", nil)
+	}()
+
+	// Create a table in the custom schema
+	_, err = client.ExecuteQuery(ctx, `
+		CREATE TABLE test_schema.test_table (
+			id serial PRIMARY KEY,
+			data text
+		)
+	`, nil)
+	if err != nil {
+		t.Fatalf("Failed to create table in test schema: %v", err)
+	}
+
+	// Introspect schema
+	schema, err := client.IntrospectSchema(ctx)
+	if err != nil {
+		t.Fatalf("IntrospectSchema() failed: %v", err)
+	}
+
+	// Find the table in the custom schema
+	var testTable *protocol.TableInfo
+	for i := range schema.Tables {
+		if schema.Tables[i].Schema == "test_schema" && schema.Tables[i].Name == "test_table" {
+			testTable = &schema.Tables[i]
+			break
+		}
+	}
+
+	if testTable == nil {
+		t.Fatal("Expected to find test_schema.test_table in schema")
+	}
+
+	// Verify schema name
+	if testTable.Schema != "test_schema" {
+		t.Errorf("Expected schema to be 'test_schema', got %s", testTable.Schema)
+	}
+
+	t.Logf("Found table: %s.%s", testTable.Schema, testTable.Name)
+}
+
+func TestClient_Integration_IntrospectSchema_DataTypes(t *testing.T) {
+	url, ok := getTestDatabaseURL()
+	if !ok {
+		t.Skip("Skipping integration test: TEST_POSTGRES_URL not set")
+	}
+
+	ctx := context.Background()
+	client, err := NewClient(ctx, url)
+	if err != nil {
+		t.Fatalf("NewClient() failed: %v", err)
+	}
+	defer client.Close()
+
+	// Create a table with various data types
+	_, err = client.ExecuteQuery(ctx, `
+		CREATE TEMP TABLE test_datatypes (
+			int_col integer,
+			text_col text,
+			bool_col boolean,
+			timestamp_col timestamp,
+			json_col jsonb,
+			uuid_col uuid,
+			numeric_col numeric(10,2),
+			array_col text[]
+		)
+	`, nil)
+	if err != nil {
+		t.Fatalf("Failed to create test table: %v", err)
+	}
+
+	// Introspect schema
+	schema, err := client.IntrospectSchema(ctx)
+	if err != nil {
+		t.Fatalf("IntrospectSchema() failed: %v", err)
+	}
+
+	// Find the test table
+	var testTable *protocol.TableInfo
+	for i := range schema.Tables {
+		if schema.Tables[i].Name == "test_datatypes" {
+			testTable = &schema.Tables[i]
+			break
+		}
+	}
+
+	if testTable == nil {
+		t.Fatal("Expected to find test_datatypes table in schema")
+	}
+
+	// Verify all columns have data types
+	expectedColumns := []string{"int_col", "text_col", "bool_col", "timestamp_col", "json_col", "uuid_col", "numeric_col", "array_col"}
+	if len(testTable.Columns) != len(expectedColumns) {
+		t.Errorf("Expected %d columns, got %d", len(expectedColumns), len(testTable.Columns))
+	}
+
+	for _, col := range testTable.Columns {
+		if col.DataType == "" {
+			t.Errorf("Column %s should have data type", col.Name)
+		}
+		if col.TypeOID == 0 {
+			t.Errorf("Column %s should have type OID", col.Name)
+		}
+		t.Logf("Column: %s, Type: %s, OID: %d, Nullable: %v", col.Name, col.DataType, col.TypeOID, col.Nullable)
+	}
+}
+
+func TestClient_Integration_IntrospectSchema_EmptyTableColumns(t *testing.T) {
+	url, ok := getTestDatabaseURL()
+	if !ok {
+		t.Skip("Skipping integration test: TEST_POSTGRES_URL not set")
+	}
+
+	ctx := context.Background()
+	client, err := NewClient(ctx, url)
+	if err != nil {
+		t.Fatalf("NewClient() failed: %v", err)
+	}
+	defer client.Close()
+
+	// Create a minimal table
+	_, err = client.ExecuteQuery(ctx, "CREATE TEMP TABLE test_minimal (id serial)", nil)
+	if err != nil {
+		t.Fatalf("Failed to create test table: %v", err)
+	}
+
+	// Introspect schema
+	schema, err := client.IntrospectSchema(ctx)
+	if err != nil {
+		t.Fatalf("IntrospectSchema() failed: %v", err)
+	}
+
+	// Find the test table
+	var testTable *protocol.TableInfo
+	for i := range schema.Tables {
+		if schema.Tables[i].Name == "test_minimal" {
+			testTable = &schema.Tables[i]
+			break
+		}
+	}
+
+	if testTable == nil {
+		t.Fatal("Expected to find test_minimal table in schema")
+	}
+
+	// Verify it has at least the id column
+	if len(testTable.Columns) == 0 {
+		t.Error("Expected at least one column")
+	}
+
+	// Verify Columns array is never nil (should be empty array instead)
+	if testTable.Columns == nil {
+		t.Error("Columns array should not be nil")
+	}
+}
+
+// Benchmark for IntrospectSchema
+
+func BenchmarkClient_IntrospectSchema(b *testing.B) {
+	url, ok := getTestDatabaseURL()
+	if !ok {
+		b.Skip("Skipping benchmark: TEST_POSTGRES_URL not set")
+	}
+
+	ctx := context.Background()
+	client, err := NewClient(ctx, url)
+	if err != nil {
+		b.Fatalf("NewClient() failed: %v", err)
+	}
+	defer client.Close()
+
+	// Create some test data
+	_, _ = client.ExecuteQuery(ctx, "CREATE TEMP TABLE bench_table1 (id serial, data text)", nil)
+	_, _ = client.ExecuteQuery(ctx, "CREATE TEMP TABLE bench_table2 (id serial, value integer)", nil)
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_, err := client.IntrospectSchema(ctx)
+		if err != nil {
+			b.Fatalf("IntrospectSchema() failed: %v", err)
+		}
+	}
+}
+
+func ExampleClient_IntrospectSchema() {
+	ctx := context.Background()
+	client, err := NewClient(ctx, "postgres://user:pass@localhost:5432/mydb")
+	if err != nil {
+		fmt.Printf("Failed to connect: %v\n", err)
+		return
+	}
+	defer client.Close()
+
+	schema, err := client.IntrospectSchema(ctx)
+	if err != nil {
+		fmt.Printf("Failed to introspect schema: %v\n", err)
+		return
+	}
+
+	fmt.Printf("Found %d tables and %d functions\n", len(schema.Tables), len(schema.Functions))
+	for _, table := range schema.Tables {
+		fmt.Printf("Table: %s.%s (%s) with %d columns\n",
+			table.Schema, table.Name, table.Type, len(table.Columns))
 	}
 }

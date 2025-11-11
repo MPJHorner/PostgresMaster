@@ -258,3 +258,170 @@ func (c *Client) handleQueryError(err error) error {
 	// Return generic error
 	return fmt.Errorf("query failed: %w", err)
 }
+
+// IntrospectSchema queries the database schema and returns information about tables and functions
+func (c *Client) IntrospectSchema(ctx context.Context) (*protocol.SchemaPayload, error) {
+	// Query for tables (including views and materialized views)
+	tables, err := c.queryTables(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query tables: %w", err)
+	}
+
+	// Query for columns for each table
+	for i := range tables {
+		columns, err := c.queryColumns(ctx, tables[i].Schema, tables[i].Name)
+		if err != nil {
+			return nil, fmt.Errorf("failed to query columns for %s.%s: %w", tables[i].Schema, tables[i].Name, err)
+		}
+		tables[i].Columns = columns
+	}
+
+	// Query for functions
+	functions, err := c.queryFunctions(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query functions: %w", err)
+	}
+
+	return &protocol.SchemaPayload{
+		Tables:    tables,
+		Functions: functions,
+	}, nil
+}
+
+// queryTables retrieves all user-defined tables, views, and materialized views
+func (c *Client) queryTables(ctx context.Context) ([]protocol.TableInfo, error) {
+	query := `
+		SELECT n.nspname, c.relname, c.relkind
+		FROM pg_class c
+		JOIN pg_namespace n ON n.oid = c.relnamespace
+		WHERE c.relkind IN ('r', 'v', 'm')
+		  AND n.nspname NOT IN ('pg_catalog', 'information_schema')
+		ORDER BY n.nspname, c.relname
+	`
+
+	rows, err := c.pool.Query(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var tables []protocol.TableInfo
+	for rows.Next() {
+		var schema, name, kind string
+		if err := rows.Scan(&schema, &name, &kind); err != nil {
+			return nil, fmt.Errorf("failed to scan table row: %w", err)
+		}
+
+		// Map relkind to readable type
+		var tableType string
+		switch kind {
+		case "r":
+			tableType = "table"
+		case "v":
+			tableType = "view"
+		case "m":
+			tableType = "materialized view"
+		default:
+			tableType = kind
+		}
+
+		tables = append(tables, protocol.TableInfo{
+			Schema:  schema,
+			Name:    name,
+			Type:    tableType,
+			Columns: []protocol.ColumnInfo{}, // Will be filled later
+		})
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("error iterating table rows: %w", err)
+	}
+
+	return tables, nil
+}
+
+// queryColumns retrieves all columns for a specific table
+func (c *Client) queryColumns(ctx context.Context, schema, table string) ([]protocol.ColumnInfo, error) {
+	query := `
+		SELECT
+			a.attname,
+			format_type(a.atttypid, a.atttypmod) as type_name,
+			NOT a.attnotnull as nullable,
+			a.atttypid as type_oid
+		FROM pg_attribute a
+		WHERE a.attrelid = ($1 || '.' || $2)::regclass
+		  AND a.attnum > 0
+		  AND NOT a.attisdropped
+		ORDER BY a.attnum
+	`
+
+	rows, err := c.pool.Query(ctx, query, schema, table)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var columns []protocol.ColumnInfo
+	for rows.Next() {
+		var name, dataType string
+		var nullable bool
+		var typeOID uint32
+
+		if err := rows.Scan(&name, &dataType, &nullable, &typeOID); err != nil {
+			return nil, fmt.Errorf("failed to scan column row: %w", err)
+		}
+
+		columns = append(columns, protocol.ColumnInfo{
+			Name:     name,
+			DataType: dataType,
+			TypeOID:  typeOID,
+			Nullable: nullable,
+		})
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("error iterating column rows: %w", err)
+	}
+
+	return columns, nil
+}
+
+// queryFunctions retrieves all user-defined functions
+func (c *Client) queryFunctions(ctx context.Context) ([]protocol.FunctionInfo, error) {
+	query := `
+		SELECT
+			n.nspname,
+			p.proname,
+			pg_get_function_result(p.oid) as return_type
+		FROM pg_proc p
+		JOIN pg_namespace n ON n.oid = p.pronamespace
+		WHERE n.nspname NOT IN ('pg_catalog', 'information_schema')
+		ORDER BY n.nspname, p.proname
+	`
+
+	rows, err := c.pool.Query(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var functions []protocol.FunctionInfo
+	for rows.Next() {
+		var schema, name, returnType string
+		if err := rows.Scan(&schema, &name, &returnType); err != nil {
+			return nil, fmt.Errorf("failed to scan function row: %w", err)
+		}
+
+		functions = append(functions, protocol.FunctionInfo{
+			Schema:     schema,
+			Name:       name,
+			ReturnType: returnType,
+		})
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("error iterating function rows: %w", err)
+	}
+
+	return functions, nil
+}

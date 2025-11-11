@@ -477,26 +477,26 @@ postgres-client/
 
 **File**: `proxy/pkg/postgres/client.go`
 
-- [ ] Implement `IntrospectSchema(ctx)` function
-- [ ] Query for tables:
+- [x] Implement `IntrospectSchema(ctx)` function
+- [x] Query for tables:
   ```sql
   SELECT n.nspname, c.relname, c.relkind
   FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
   WHERE c.relkind IN ('r','v','m') AND n.nspname NOT IN ('pg_catalog','information_schema')
   ```
-- [ ] Query for columns per table:
+- [x] Query for columns per table:
   ```sql
   SELECT a.attname, format_type(a.atttypid, a.atttypmod), a.attnotnull
   FROM pg_attribute a WHERE a.attrelid = $1::regclass AND a.attnum > 0
   ```
-- [ ] Query for functions:
+- [x] Query for functions:
   ```sql
   SELECT n.nspname, p.proname, pg_get_function_result(p.oid)
   FROM pg_proc p JOIN pg_namespace n ON n.oid = p.pronamespace
   WHERE n.nspname NOT IN ('pg_catalog','information_schema')
   ```
-- [ ] Return structured SchemaInfo
-- [ ] Add unit tests with test database
+- [x] Return structured SchemaInfo
+- [x] Add unit tests with test database
 
 ### 1.9 WebSocket Server
 
