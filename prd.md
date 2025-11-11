@@ -358,13 +358,13 @@ postgres-client/
 
 ### 1.1 Project Structure Setup
 
-- [ ] Create monorepo root structure
-- [ ] Create `proxy/` directory
-- [ ] Create `web/` directory
-- [ ] Create `docs/` directory
-- [ ] Add root `.gitignore` (Go + Node.js)
-- [ ] Add root `README.md` with project overview
-- [ ] Add `LICENSE` file (AGPL-3.0)
+- [x] Create monorepo root structure
+- [x] Create `proxy/` directory
+- [x] Create `web/` directory
+- [x] Create `docs/` directory
+- [x] Add root `.gitignore` (Go + Node.js)
+- [x] Add root `README.md` with project overview
+- [x] Add `LICENSE` file (AGPL-3.0)
 
 ### 1.2 Go Proxy - Initial Setup
 
