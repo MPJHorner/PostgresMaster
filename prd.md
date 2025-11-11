@@ -368,8 +368,8 @@ postgres-client/
 
 ### 1.2 Go Proxy - Initial Setup
 
-- [ ] Create `proxy/go.mod`: `go mod init github.com/youruser/postgres-client/proxy`
-- [ ] Create directory structure:
+- [x] Create `proxy/go.mod`: `go mod init github.com/youruser/postgres-client/proxy`
+- [x] Create directory structure:
   ```
   proxy/
   ├── cmd/proxy/main.go
@@ -383,10 +383,10 @@ postgres-client/
   ├── Makefile
   └── README.md
   ```
-- [ ] Install dependencies:
-  - [ ] `go get github.com/gorilla/websocket`
-  - [ ] `go get github.com/jackc/pgx/v5`
-  - [ ] `go get github.com/jackc/pgx/v5/pgxpool`
+- [x] Install dependencies:
+  - [x] `go get github.com/gorilla/websocket`
+  - [x] `go get github.com/jackc/pgx/v5`
+  - [x] `go get github.com/jackc/pgx/v5/pgxpool`
 
 ### 1.3 Secret Generation & Validation
 
