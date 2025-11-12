@@ -731,22 +731,22 @@ postgres-client/
 
 **File**: `web/src/lib/components/LandingPage.svelte`
 
-- [ ] Create component structure
-- [ ] Add hero section with title and description
-- [ ] Add features section (3 cards):
-  - [ ] "Any Postgres" card
-  - [ ] "Lightning Fast" card
-  - [ ] "Secure" card
-- [ ] Add "Get Started" section with 3 steps
-- [ ] Add download buttons for all platforms:
-  - [ ] Windows (x64)
-  - [ ] macOS (Intel)
-  - [ ] macOS (Apple Silicon)
-  - [ ] Linux (x64)
-- [ ] Add code examples for usage
-- [ ] Style with shadcn components
-- [ ] Make responsive for mobile/desktop
-- [ ] Add footer with tech stack info
+- [x] Create component structure
+- [x] Add hero section with title and description
+- [x] Add features section (3 cards):
+  - [x] "Any Postgres" card
+  - [x] "Lightning Fast" card
+  - [x] "Secure" card
+- [x] Add "Get Started" section with 3 steps
+- [x] Add download buttons for all platforms:
+  - [x] Windows (x64)
+  - [x] macOS (Intel)
+  - [x] macOS (Apple Silicon)
+  - [x] Linux (x64)
+- [x] Add code examples for usage
+- [x] Style with shadcn components
+- [x] Make responsive for mobile/desktop
+- [x] Add footer with tech stack info
 
 ### 2.10 Connection Status Component
 
