@@ -2,16 +2,19 @@
 	import { onMount, onDestroy } from 'svelte';
 	import { browser } from '$app/environment';
 	import type * as Monaco from 'monaco-editor';
+	import { setupAutocomplete, type SchemaInfo } from '$lib/utils/autocomplete';
 
 	// Props
 	export let value = '';
 	export let onChange: ((newValue: string) => void) | undefined = undefined;
 	export let onExecute: (() => void) | undefined = undefined;
 	export let height = '400px';
+	export let schema: SchemaInfo | undefined = undefined;
 
 	let editorContainer: HTMLDivElement;
 	let editor: Monaco.editor.IStandaloneCodeEditor | null = null;
 	let monaco: typeof Monaco | null = null;
+	let autocompleteDisposable: Monaco.IDisposable | null = null;
 
 	onMount(async () => {
 		// Only run in browser
@@ -67,6 +70,9 @@
 					onExecute();
 				}
 			});
+
+			// Setup SQL autocomplete with keywords, functions, and schema-aware completions
+			autocompleteDisposable = setupAutocomplete(monaco, schema);
 		}
 
 		// Set initial value if provided
@@ -76,6 +82,12 @@
 	});
 
 	onDestroy(() => {
+		// Dispose autocomplete provider
+		if (autocompleteDisposable) {
+			autocompleteDisposable.dispose();
+			autocompleteDisposable = null;
+		}
+
 		// Dispose editor to free resources
 		if (editor) {
 			editor.dispose();
@@ -90,6 +102,16 @@
 		if (position) {
 			editor.setPosition(position);
 		}
+	}
+
+	// Watch for schema changes and update autocomplete
+	$: if (monaco && schema) {
+		// Dispose existing autocomplete provider
+		if (autocompleteDisposable) {
+			autocompleteDisposable.dispose();
+		}
+		// Re-register with new schema
+		autocompleteDisposable = setupAutocomplete(monaco, schema);
 	}
 
 	// Public method to get current value

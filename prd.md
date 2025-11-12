@@ -858,21 +858,21 @@ postgres-client/
 
 **File**: `web/src/lib/utils/autocomplete.ts`
 
-- [ ] Create `setupAutocomplete(monaco, schema)` function
-- [ ] Register completion item provider for 'sql'
-- [ ] Implement `provideCompletionItems` callback
-- [ ] Get word at cursor position
-- [ ] Calculate range for replacement
-- [ ] Generate keyword suggestions:
-  - [ ] Map keywords to CompletionItem
-  - [ ] Set kind: Keyword
-  - [ ] Set sortText to prioritize keywords
-- [ ] Generate function suggestions:
-  - [ ] Map functions to CompletionItem
-  - [ ] Set kind: Function
-  - [ ] Add snippet with $1 placeholder
-- [ ] Return suggestions
-- [ ] Test autocomplete triggers on typing
+- [x] Create `setupAutocomplete(monaco, schema)` function
+- [x] Register completion item provider for 'sql'
+- [x] Implement `provideCompletionItems` callback
+- [x] Get word at cursor position
+- [x] Calculate range for replacement
+- [x] Generate keyword suggestions:
+  - [x] Map keywords to CompletionItem
+  - [x] Set kind: Keyword
+  - [x] Set sortText to prioritize keywords
+- [x] Generate function suggestions:
+  - [x] Map functions to CompletionItem
+  - [x] Set kind: Function
+  - [x] Add snippet with $1 placeholder
+- [x] Return suggestions
+- [x] Test autocomplete triggers on typing
 
 ### 3.5 Schema-Aware Autocomplete
 
