@@ -1053,17 +1053,17 @@ Create test queries file for manual testing:
 
 **File**: `web/test-queries.sql`
 
-- [ ] Simple SELECT: `SELECT 1 as num`
-- [ ] SELECT with multiple columns and types
-- [ ] SELECT with NULL values
-- [ ] SELECT with timestamps
-- [ ] SELECT with JSON/JSONB
-- [ ] SELECT large result set: `SELECT * FROM generate_series(1, 1000)`
-- [ ] INSERT query
-- [ ] UPDATE query
-- [ ] DELETE query
-- [ ] Query with syntax error
-- [ ] Query on non-existent table
+- [x] Simple SELECT: `SELECT 1 as num`
+- [x] SELECT with multiple columns and types
+- [x] SELECT with NULL values
+- [x] SELECT with timestamps
+- [x] SELECT with JSON/JSONB
+- [x] SELECT large result set: `SELECT * FROM generate_series(1, 1000)`
+- [x] INSERT query
+- [x] UPDATE query
+- [x] DELETE query
+- [x] Query with syntax error
+- [x] Query on non-existent table
 
 ### 4.8 Phase 4 - Manual Testing
 
