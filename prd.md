@@ -710,12 +710,12 @@ postgres-client/
 
 **File**: `web/src/lib/stores/connection.ts`
 
-- [ ] Create `ConnectionState` interface
-- [ ] Create `connectionStore` writable store
-- [ ] Create `isConnected` derived store
-- [ ] Create `client` derived store
-- [ ] Add helper functions for state updates
-- [ ] Export all stores
+- [x] Create `ConnectionState` interface
+- [x] Create `connectionStore` writable store
+- [x] Create `isConnected` derived store
+- [x] Create `client` derived store
+- [x] Add helper functions for state updates
+- [x] Export all stores
 
 ### 2.8 Schema Store
 
