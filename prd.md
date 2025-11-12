@@ -593,17 +593,17 @@ postgres-client/
 
 ### 2.1 SvelteKit Initialization
 
-- [ ] Navigate to project root
-- [ ] Create web directory: `mkdir -p web && cd web`
-- [ ] Initialize SvelteKit: `npm create svelte@latest .`
-  - [ ] Choose: Skeleton project
-  - [ ] TypeScript: Yes
-  - [ ] ESLint: Yes
-  - [ ] Prettier: Yes
-  - [ ] Playwright: No
-  - [ ] Vitest: Yes
-- [ ] Install dependencies: `npm install`
-- [ ] Test dev server: `npm run dev`
+- [x] Navigate to project root
+- [x] Create web directory: `mkdir -p web && cd web`
+- [x] Initialize SvelteKit: `npm create svelte@latest .`
+  - [x] Choose: Skeleton project
+  - [x] TypeScript: Yes
+  - [x] ESLint: Yes
+  - [x] Prettier: Yes
+  - [x] Playwright: No
+  - [x] Vitest: Yes
+- [x] Install dependencies: `npm install`
+- [x] Test dev server: `npm run dev`
 
 ### 2.2 Static Adapter Configuration
 
