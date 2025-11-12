@@ -1035,15 +1035,15 @@ postgres-client/
 
 **File**: `web/src/lib/stores/history.ts`
 
-- [ ] Create `QueryHistoryItem` interface (sql, timestamp, success)
-- [ ] Create `queryHistory` writable store
-- [ ] Create `addToHistory(item)` function
-- [ ] Keep last 50 queries
-- [ ] Export store and functions
+- [x] Create `QueryHistoryItem` interface (sql, timestamp, success)
+- [x] Create `queryHistory` writable store
+- [x] Create `addToHistory(item)` function
+- [x] Keep last 50 queries
+- [x] Export store and functions
 
 **File**: `web/src/lib/components/QueryPanel.svelte`
 
-- [ ] Add queries to history on execution
+- [x] Add queries to history on execution
 - [ ] (Optional) Display recent queries in sidebar/dropdown
 - [ ] (Optional) Click to load query into editor
 

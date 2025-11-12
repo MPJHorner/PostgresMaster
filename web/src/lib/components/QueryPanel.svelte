@@ -13,6 +13,7 @@
 	} from '$lib/components/ui';
 	import { connectionStore } from '$lib/stores/connection';
 	import { schemaStore } from '$lib/stores/schema';
+	import { queryHistory } from '$lib/stores/history';
 	import { Play, Loader2 } from 'lucide-svelte';
 	import type { ResultPayload } from '$lib/services/protocol';
 	import type { SchemaInfo } from '$lib/utils/autocomplete';
@@ -75,6 +76,8 @@
 		error = null;
 		results = null;
 
+		const startTime = Date.now();
+
 		try {
 			// Execute query via client
 			const result = await client.executeQuery(sql);
@@ -82,11 +85,29 @@
 			// Store results
 			results = result;
 			error = null;
+
+			// Add to history (success)
+			queryHistory.addQuery({
+				sql: sql.trim(),
+				timestamp: new Date(),
+				success: true,
+				executionTime: result.executionTime,
+				rowCount: result.rowCount
+			});
 		} catch (err) {
 			// Handle error
 			const errorMsg = err instanceof Error ? err.message : String(err);
 			error = errorMsg;
 			results = null;
+
+			// Add to history (failure)
+			queryHistory.addQuery({
+				sql: sql.trim(),
+				timestamp: new Date(),
+				success: false,
+				executionTime: Date.now() - startTime,
+				error: errorMsg
+			});
 		} finally {
 			// Clear loading state
 			loading = false;
