@@ -878,21 +878,21 @@ postgres-client/
 
 **File**: `web/src/lib/utils/autocomplete.ts`
 
-- [ ] Add table name suggestions:
-  - [ ] Map tables from schema to CompletionItem
-  - [ ] Set kind: Class
-  - [ ] Add detail with schema name
-  - [ ] Add documentation with column list
-- [ ] Add column name suggestions:
-  - [ ] Map columns from all tables
-  - [ ] Format as `table.column`
-  - [ ] Set kind: Field
-  - [ ] Add detail with data type
-- [ ] Add function suggestions from schema:
-  - [ ] Map functions to CompletionItem
-  - [ ] Add return type as detail
-- [ ] Sort suggestions: keywords → functions → tables → columns
-- [ ] Test autocomplete shows schema objects
+- [x] Add table name suggestions:
+  - [x] Map tables from schema to CompletionItem
+  - [x] Set kind: Class
+  - [x] Add detail with schema name
+  - [x] Add documentation with column list
+- [x] Add column name suggestions:
+  - [x] Map columns from all tables
+  - [x] Format as `table.column`
+  - [x] Set kind: Field
+  - [x] Add detail with data type
+- [x] Add function suggestions from schema:
+  - [x] Map functions to CompletionItem
+  - [x] Add return type as detail
+- [x] Sort suggestions: keywords → functions → tables → columns
+- [x] Test autocomplete shows schema objects
 
 ### 3.6 Context-Aware Autocomplete (Advanced)
 
