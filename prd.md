@@ -909,16 +909,16 @@ postgres-client/
 
 **File**: `web/src/lib/components/QueryPanel.svelte`
 
-- [ ] Import Editor component
-- [ ] Create layout with editor at top
-- [ ] Add "Run Query" button with Ctrl+Enter hint
-- [ ] Add SQL state variable
-- [ ] Implement executeQuery function (placeholder for now)
-- [ ] Add loading state
-- [ ] Add error display area
-- [ ] Add results display area (placeholder)
-- [ ] Style with shadcn components
-- [ ] Wire up to connection store
+- [x] Import Editor component
+- [x] Create layout with editor at top
+- [x] Add "Run Query" button with Ctrl+Enter hint
+- [x] Add SQL state variable
+- [x] Implement executeQuery function (placeholder for now)
+- [x] Add loading state
+- [x] Add error display area
+- [x] Add results display area (placeholder)
+- [x] Style with shadcn components
+- [x] Wire up to connection store
 
 ### 3.8 Update Main Page with Editor
 
