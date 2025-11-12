@@ -679,15 +679,15 @@ postgres-client/
 
 **File**: `web/src/lib/services/protocol.ts`
 
-- [ ] Define `ClientMessage` interface
-- [ ] Define `ServerMessage` interface
-- [ ] Define `QueryResult` interface
-- [ ] Define `ColumnInfo` interface
-- [ ] Define `SchemaInfo` interface
-- [ ] Define `TableInfo` interface
-- [ ] Define `ErrorPayload` interface
-- [ ] Match Go message types exactly
-- [ ] Export all types
+- [x] Define `ClientMessage` interface
+- [x] Define `ServerMessage` interface
+- [x] Define `QueryResult` interface
+- [x] Define `ColumnInfo` interface
+- [x] Define `SchemaInfo` interface
+- [x] Define `TableInfo` interface
+- [x] Define `ErrorPayload` interface
+- [x] Match Go message types exactly
+- [x] Export all types
 
 ### 2.6 WebSocket Client Service
 
