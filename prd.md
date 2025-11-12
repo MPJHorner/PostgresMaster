@@ -721,11 +721,11 @@ postgres-client/
 
 **File**: `web/src/lib/stores/schema.ts`
 
-- [ ] Create `schemaStore` writable store
-- [ ] Create `tables` derived store
-- [ ] Create `tableNames` derived store
-- [ ] Create `allColumns` derived store (for autocomplete)
-- [ ] Export all stores
+- [x] Create `schemaStore` writable store
+- [x] Create `tables` derived store
+- [x] Create `tableNames` derived store
+- [x] Create `allColumns` derived store (for autocomplete)
+- [x] Export all stores
 
 ### 2.9 Landing Page Component
 
