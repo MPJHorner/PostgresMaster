@@ -924,11 +924,11 @@ postgres-client/
 
 **File**: `web/src/routes/+page.svelte`
 
-- [ ] Import QueryPanel component
-- [ ] Show QueryPanel when connected
-- [ ] Pass client from connection store
-- [ ] Remove placeholder editor UI
-- [ ] Test full flow: landing → connect → editor shows
+- [x] Import QueryPanel component
+- [x] Show QueryPanel when connected
+- [x] Pass client from connection store
+- [x] Remove placeholder editor UI
+- [x] Test full flow: landing → connect → editor shows
 
 ### 3.9 Phase 3 - Manual Testing
 
