@@ -1,6 +1,11 @@
 <script lang="ts">
 	import type { ResultPayload } from '$lib/services/protocol';
-	import { formatValue, formatColumnType, formatExecutionTime, formatRowCount } from '$lib/utils/format';
+	import {
+		formatValue,
+		formatColumnType,
+		formatExecutionTime,
+		formatRowCount
+	} from '$lib/utils/format';
 	import Card from './ui/card.svelte';
 	import CardContent from './ui/card-content.svelte';
 	import CardHeader from './ui/card-header.svelte';
