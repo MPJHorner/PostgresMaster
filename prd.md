@@ -607,8 +607,8 @@ postgres-client/
 
 ### 2.2 Static Adapter Configuration
 
-- [ ] Install adapter: `npm install -D @sveltejs/adapter-static`
-- [ ] Configure `svelte.config.js`:
+- [x] Install adapter: `npm install -D @sveltejs/adapter-static`
+- [x] Configure `svelte.config.js`:
   ```js
   import adapter from '@sveltejs/adapter-static';
 
@@ -622,9 +622,9 @@ postgres-client/
     }
   };
   ```
-- [ ] Test build: `npm run build`
-- [ ] Test preview: `npm run preview`
-- [ ] Verify static files in `build/`
+- [x] Test build: `npm run build`
+- [x] Test preview: `npm run preview`
+- [x] Verify static files in `build/`
 
 ### 2.3 TailwindCSS Setup
 
