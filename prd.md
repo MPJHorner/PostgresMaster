@@ -1005,17 +1005,17 @@ postgres-client/
 
 **File**: `web/src/lib/components/ErrorDisplay.svelte`
 
-- [ ] Import shadcn Alert components
-- [ ] Accept `error: string` prop
-- [ ] Parse Postgres error if possible:
-  - [ ] Extract error code if present
-  - [ ] Extract position if present
-- [ ] Display error with AlertCircle icon
-- [ ] Use destructive variant
-- [ ] Show error code if available
-- [ ] Show hint/detail if available
-- [ ] Make error message monospace font
-- [ ] Test with various Postgres errors
+- [x] Import shadcn Alert components
+- [x] Accept `error: string` prop
+- [x] Parse Postgres error if possible:
+  - [x] Extract error code if present
+  - [x] Extract position if present
+- [x] Display error with AlertCircle icon
+- [x] Use destructive variant
+- [x] Show error code if available
+- [x] Show hint/detail if available
+- [x] Make error message monospace font
+- [x] Test with various Postgres errors
 
 ### 4.5 Wire Up Results Display
 

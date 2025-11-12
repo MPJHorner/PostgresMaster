@@ -1,20 +1,18 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import Editor from './Editor.svelte';
+	import ErrorDisplay from './ErrorDisplay.svelte';
 	import {
 		Button,
 		Card,
 		CardContent,
 		CardHeader,
 		CardTitle,
-		Alert,
-		AlertDescription,
-		AlertTitle,
 		Separator
 	} from '$lib/components/ui';
 	import { connectionStore } from '$lib/stores/connection';
 	import { schemaStore } from '$lib/stores/schema';
-	import { AlertCircle, Play, Loader2 } from 'lucide-svelte';
+	import { Play, Loader2 } from 'lucide-svelte';
 	import type { ResultPayload } from '$lib/services/protocol';
 	import type { SchemaInfo } from '$lib/utils/autocomplete';
 
@@ -166,13 +164,7 @@
 			</Card>
 		{:else if error}
 			<!-- Error Display -->
-			<Alert variant="destructive">
-				<AlertCircle class="h-4 w-4" />
-				<AlertTitle>Query Error</AlertTitle>
-				<AlertDescription class="font-mono text-sm mt-2 whitespace-pre-wrap">
-					{error}
-				</AlertDescription>
-			</Alert>
+			<ErrorDisplay {error} />
 		{:else if results}
 			<!-- Results Display (Placeholder for Phase 4) -->
 			<Card>
