@@ -955,17 +955,17 @@ postgres-client/
 
 **File**: `web/src/lib/components/QueryPanel.svelte`
 
-- [ ] Implement executeQuery function:
-  - [ ] Validate SQL is not empty
-  - [ ] Set loading state
-  - [ ] Clear previous results/errors
-  - [ ] Call client.executeQuery(sql)
-  - [ ] Handle success: store results
-  - [ ] Handle error: display error
-  - [ ] Clear loading state
-- [ ] Add try/catch with proper error handling
-- [ ] Add loading spinner during execution
-- [ ] Test query execution end-to-end
+- [x] Implement executeQuery function:
+  - [x] Validate SQL is not empty
+  - [x] Set loading state
+  - [x] Clear previous results/errors
+  - [x] Call client.executeQuery(sql)
+  - [x] Handle success: store results
+  - [x] Handle error: display error
+  - [x] Clear loading state
+- [x] Add try/catch with proper error handling
+- [x] Add loading spinner during execution
+- [x] Test query execution end-to-end
 
 ### 4.2 Value Formatting Utility
 
@@ -1021,15 +1021,15 @@ postgres-client/
 
 **File**: `web/src/lib/components/QueryPanel.svelte`
 
-- [ ] Import Results component
-- [ ] Import ErrorDisplay component
-- [ ] Add results state variable
-- [ ] Add error state variable
-- [ ] Show Results component when results available
-- [ ] Show ErrorDisplay when error present
-- [ ] Show loading spinner when executing
-- [ ] Show empty state when no results yet
-- [ ] Test full flow: type query → execute → see results
+- [x] Import Results component
+- [x] Import ErrorDisplay component
+- [x] Add results state variable
+- [x] Add error state variable
+- [x] Show Results component when results available
+- [x] Show ErrorDisplay when error present
+- [x] Show loading spinner when executing
+- [x] Show empty state when no results yet
+- [x] Test full flow: type query → execute → see results
 
 ### 4.6 Query History (In-Memory)
 

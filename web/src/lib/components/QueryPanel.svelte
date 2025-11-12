@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import Editor from './Editor.svelte';
 	import ErrorDisplay from './ErrorDisplay.svelte';
+	import Results from './Results.svelte';
 	import {
 		Button,
 		Card,
@@ -166,25 +167,8 @@
 			<!-- Error Display -->
 			<ErrorDisplay {error} />
 		{:else if results}
-			<!-- Results Display (Placeholder for Phase 4) -->
-			<Card>
-				<CardHeader>
-					<CardTitle class="text-lg">Query Results</CardTitle>
-				</CardHeader>
-				<CardContent>
-					<div class="space-y-2">
-						<div class="text-sm text-muted-foreground">
-							<span class="font-semibold">{results.rowCount}</span>
-							{results.rowCount === 1 ? 'row' : 'rows'} returned in
-							<span class="font-semibold">{results.executionTime}ms</span>
-						</div>
-						<div class="text-xs text-muted-foreground border rounded-md p-4 bg-muted/50">
-							<p class="font-semibold mb-2">Results preview (Phase 4 implementation):</p>
-							<pre class="overflow-auto max-h-64">{JSON.stringify(results, null, 2)}</pre>
-						</div>
-					</div>
-				</CardContent>
-			</Card>
+			<!-- Results Display -->
+			<Results data={results} />
 		{:else}
 			<!-- Empty State -->
 			<Card>
