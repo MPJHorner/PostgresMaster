@@ -628,9 +628,18 @@ postgres-client/
 
 ### 2.3 TailwindCSS Setup
 
-- [ ] Install: `npm install -D tailwindcss postcss autoprefixer`
-- [ ] Initialize: `npx tailwindcss init -p`
-- [ ] Configure `tailwind.config.js`:
+- [x] Install: `npm install -D tailwindcss postcss autoprefixer`
+- [x] Install Tailwind v4 PostCSS plugin: `npm install -D @tailwindcss/postcss`
+- [x] Configure `postcss.config.js`:
+  ```js
+  export default {
+    plugins: {
+      '@tailwindcss/postcss': {},
+      autoprefixer: {}
+    }
+  };
+  ```
+- [x] Configure `tailwind.config.js`:
   ```js
   export default {
     content: ['./src/**/*.{html,js,svelte,ts}'],
@@ -638,20 +647,18 @@ postgres-client/
     plugins: []
   };
   ```
-- [ ] Create `src/app.css`:
+- [x] Create `src/app.css`:
   ```css
-  @tailwind base;
-  @tailwind components;
-  @tailwind utilities;
+  @import "tailwindcss";
   ```
-- [ ] Import in `src/routes/+layout.svelte`:
+- [x] Import in `src/routes/+layout.svelte`:
   ```svelte
   <script>
     import '../app.css';
   </script>
   <slot />
   ```
-- [ ] Test Tailwind classes work
+- [x] Test Tailwind classes work
 
 ### 2.4 shadcn-svelte Integration
 
