@@ -985,21 +985,21 @@ postgres-client/
 
 **File**: `web/src/lib/components/Results.svelte`
 
-- [ ] Import shadcn Table components
-- [ ] Accept `data: QueryResult` prop
-- [ ] Display metadata section:
-  - [ ] Row count
-  - [ ] Execution time (ms)
-- [ ] Render table:
-  - [ ] TableHeader with column names + types as badges
-  - [ ] TableBody with rows
-  - [ ] Format each cell value with formatValue()
-  - [ ] Handle NULL values specially (gray text)
-- [ ] Add scrolling for large result sets (max height 500px)
-- [ ] Add sticky header when scrolling
-- [ ] Handle empty results (show message)
-- [ ] Style with Card component
-- [ ] Test with various data types
+- [x] Import shadcn Table components
+- [x] Accept `data: QueryResult` prop
+- [x] Display metadata section:
+  - [x] Row count
+  - [x] Execution time (ms)
+- [x] Render table:
+  - [x] TableHeader with column names + types as badges
+  - [x] TableBody with rows
+  - [x] Format each cell value with formatValue()
+  - [x] Handle NULL values specially (gray text)
+- [x] Add scrolling for large result sets (max height 500px)
+- [x] Add sticky header when scrolling
+- [x] Handle empty results (show message)
+- [x] Style with Card component
+- [x] Test with various data types
 
 ### 4.4 Error Display Component
 
