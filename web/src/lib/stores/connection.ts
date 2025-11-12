@@ -41,8 +41,7 @@ export const connectionStore = writable<ConnectionStateData>(initialState);
  */
 export const isConnected: Readable<boolean> = derived(
 	connectionStore,
-	($connection) =>
-		$connection.state === ConnectionState.CONNECTED && $connection.client !== null
+	($connection) => $connection.state === ConnectionState.CONNECTED && $connection.client !== null
 );
 
 /**
