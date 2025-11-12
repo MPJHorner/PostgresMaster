@@ -822,19 +822,19 @@ postgres-client/
 
 **File**: `web/src/lib/components/Editor.svelte`
 
-- [ ] Create component with editor container div
-- [ ] Import Monaco Editor
-- [ ] Initialize editor in onMount:
-  - [ ] Language: 'sql'
-  - [ ] Theme: 'vs-dark'
-  - [ ] Options: minimap disabled, auto layout, word wrap
-- [ ] Bind value prop (two-way binding)
-- [ ] Add onChange callback prop
-- [ ] Add onExecute callback prop
-- [ ] Register Ctrl+Enter command for execution
-- [ ] Dispose editor onDestroy
-- [ ] Style editor container (height, border, rounded)
-- [ ] Test editor renders and accepts input
+- [x] Create component with editor container div
+- [x] Import Monaco Editor
+- [x] Initialize editor in onMount:
+  - [x] Language: 'sql'
+  - [x] Theme: 'vs-dark'
+  - [x] Options: minimap disabled, auto layout, word wrap
+- [x] Bind value prop (two-way binding)
+- [x] Add onChange callback prop
+- [x] Add onExecute callback prop
+- [x] Register Ctrl+Enter command for execution
+- [x] Dispose editor onDestroy
+- [x] Style editor container (height, border, rounded)
+- [x] Test editor renders and accepts input
 
 ### 3.3 SQL Keywords List
 
