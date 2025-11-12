@@ -752,13 +752,13 @@ postgres-client/
 
 **File**: `web/src/lib/components/ConnectionStatus.svelte`
 
-- [ ] Create component with connection state display
-- [ ] Show "Connected" badge when connected
-- [ ] Show "Connecting..." when connecting
-- [ ] Show "Disconnected" with retry when disconnected
-- [ ] Show error message on connection error
-- [ ] Style with shadcn Badge component
-- [ ] Make it prominent in the UI
+- [x] Create component with connection state display
+- [x] Show "Connected" badge when connected
+- [x] Show "Connecting..." when connecting
+- [x] Show "Disconnected" with retry when disconnected
+- [x] Show error message on connection error
+- [x] Style with shadcn Badge component
+- [x] Make it prominent in the UI
 
 ### 2.11 Main Page Component
 
