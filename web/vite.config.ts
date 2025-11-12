@@ -1,6 +1,5 @@
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vitest/config';
-// @ts-expect-error - vite-plugin-monaco-editor types are not properly exported
 import monacoEditorPluginModule from 'vite-plugin-monaco-editor';
 
 // Handle both CommonJS and ES module exports

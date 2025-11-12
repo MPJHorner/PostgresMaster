@@ -7,6 +7,7 @@
 	import { onMount } from 'svelte';
 	import LandingPage from '$lib/components/LandingPage.svelte';
 	import ConnectionStatus from '$lib/components/ConnectionStatus.svelte';
+	import Editor from '$lib/components/Editor.svelte';
 	import { connect, disconnect, clearError } from '$lib/stores/connection';
 	import { connectionStore } from '$lib/stores/connection';
 	import { setSchema, clearSchema } from '$lib/stores/schema';
@@ -17,6 +18,9 @@
 	let secret = $state<string | null>(null);
 	let isInitializing = $state(true);
 	let schemaLoaded = $state(false);
+
+	// Editor state
+	let sqlQuery = $state('SELECT 1;');
 
 	/**
 	 * Initialize connection when component mounts
@@ -96,6 +100,21 @@
 			clearSchema();
 		}
 	});
+
+	/**
+	 * Handle SQL query change
+	 */
+	function handleQueryChange(newValue: string) {
+		sqlQuery = newValue;
+	}
+
+	/**
+	 * Handle query execution (Ctrl+Enter)
+	 */
+	function handleExecuteQuery() {
+		console.log('Execute query:', sqlQuery);
+		// Placeholder for actual execution logic (Phase 4)
+	}
 </script>
 
 <!-- Main Page Layout -->
@@ -155,19 +174,25 @@
 				</div>
 			</div>
 
-			<!-- Editor UI Placeholder -->
+			<!-- SQL Query Editor -->
 			<Card>
 				<CardHeader>
 					<CardTitle>SQL Query Editor</CardTitle>
-					<CardDescription>Write and execute PostgreSQL queries</CardDescription>
+					<CardDescription
+						>Write and execute PostgreSQL queries. Press <kbd
+							class="px-2 py-1 bg-muted rounded text-xs">Ctrl+Enter</kbd
+						> to execute.</CardDescription
+					>
 				</CardHeader>
 				<CardContent>
-					<div class="bg-muted p-8 rounded-lg text-center">
-						<p class="text-lg font-semibold mb-2">✅ Connected to database successfully!</p>
-						<p class="text-muted-foreground">The SQL editor will appear here in Phase 3.</p>
-						<p class="text-sm text-muted-foreground mt-4">
-							Schema introspection complete. Ready for autocomplete features.
-						</p>
+					<Editor
+						bind:value={sqlQuery}
+						onChange={handleQueryChange}
+						onExecute={handleExecuteQuery}
+						height="500px"
+					/>
+					<div class="mt-4 text-sm text-muted-foreground">
+						<p>✅ Connected to database. Schema introspection complete.</p>
 					</div>
 				</CardContent>
 			</Card>
