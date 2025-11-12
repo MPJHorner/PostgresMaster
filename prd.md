@@ -898,12 +898,12 @@ postgres-client/
 
 **File**: `web/src/lib/utils/autocomplete.ts`
 
-- [ ] Parse SQL context at cursor position
-- [ ] Detect if inside FROM clause → suggest tables
-- [ ] Detect if after table name + dot → suggest columns for that table
-- [ ] Detect if inside WHERE clause → suggest columns
-- [ ] Add smarter filtering based on context
-- [ ] Test context detection works
+- [x] Parse SQL context at cursor position
+- [x] Detect if inside FROM clause → suggest tables
+- [x] Detect if after table name + dot → suggest columns for that table
+- [x] Detect if inside WHERE clause → suggest columns
+- [x] Add smarter filtering based on context
+- [x] Test context detection works
 
 ### 3.7 Query Panel Component
 

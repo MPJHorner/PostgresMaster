@@ -13,7 +13,7 @@ import {
 	ARRAY_FUNCTIONS,
 	ALL_FUNCTIONS,
 	ALL_KEYWORDS,
-	ALL_COMPLETIONS,
+	ALL_COMPLETIONS
 } from './autocomplete';
 
 describe('SQL Keywords', () => {
@@ -412,15 +412,7 @@ describe('Specific PostgreSQL Features', () => {
 
 describe('SQL Standards Compliance', () => {
 	it('should support standard SQL clauses', () => {
-		const standardClauses = [
-			'SELECT',
-			'FROM',
-			'WHERE',
-			'GROUP BY',
-			'HAVING',
-			'ORDER BY',
-			'LIMIT',
-		];
+		const standardClauses = ['SELECT', 'FROM', 'WHERE', 'GROUP BY', 'HAVING', 'ORDER BY', 'LIMIT'];
 
 		standardClauses.forEach((clause) => {
 			expect(SQL_KEYWORDS).toContain(clause);
@@ -444,7 +436,7 @@ describe('SQL Standards Compliance', () => {
 			'TIME',
 			'TIMESTAMP',
 			'BOOLEAN',
-			'DECIMAL',
+			'DECIMAL'
 		];
 
 		standardTypes.forEach((type) => {
