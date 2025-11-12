@@ -803,9 +803,9 @@ postgres-client/
 
 ### 3.1 Monaco Editor Installation
 
-- [ ] Install Monaco: `npm install monaco-editor`
-- [ ] Install Vite plugin: `npm install -D vite-plugin-monaco-editor`
-- [ ] Configure `vite.config.ts`:
+- [x] Install Monaco: `npm install monaco-editor`
+- [x] Install Vite plugin: `npm install -D vite-plugin-monaco-editor`
+- [x] Configure `vite.config.ts`:
   ```ts
   import monacoEditorPlugin from 'vite-plugin-monaco-editor';
 
@@ -816,7 +816,7 @@ postgres-client/
     ]
   };
   ```
-- [ ] Test Monaco imports work
+- [x] Test Monaco imports work
 
 ### 3.2 Editor Component
 
