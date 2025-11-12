@@ -5,14 +5,7 @@
 	 */
 
 	import { ConnectionState } from '$lib/services/websocket';
-	import {
-		currentState,
-		errorMessage,
-		isConnected,
-		isConnecting,
-		isReconnecting,
-		hasError
-	} from '$lib/stores/connection';
+	import { currentState, errorMessage, hasError } from '$lib/stores/connection';
 	import Badge from '$lib/components/ui/badge.svelte';
 	import Alert from '$lib/components/ui/alert.svelte';
 	import AlertDescription from '$lib/components/ui/alert-description.svelte';
@@ -88,10 +81,7 @@
 <div class="connection-status" data-testid="connection-status">
 	<!-- Status Badge -->
 	<div class="flex items-center gap-2">
-		<Badge
-			variant={getBadgeVariant($currentState)}
-			class={getCustomBadgeClass($currentState)}
-		>
+		<Badge variant={getBadgeVariant($currentState)} class={getCustomBadgeClass($currentState)}>
 			{getStatusText($currentState)}
 		</Badge>
 

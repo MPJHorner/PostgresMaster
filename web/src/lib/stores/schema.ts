@@ -182,9 +182,8 @@ export function getTable(tableName: string): TableInfo | null {
 
 	schemaStore.subscribe(($schema) => {
 		table =
-			$schema.tables.find(
-				(t) => t.name === tableName || `${t.schema}.${t.name}` === tableName
-			) || null;
+			$schema.tables.find((t) => t.name === tableName || `${t.schema}.${t.name}` === tableName) ||
+			null;
 	})();
 
 	return table;

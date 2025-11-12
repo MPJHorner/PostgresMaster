@@ -54,8 +54,8 @@
 				PostgreSQL Client<br />That Lives in Your Browser
 			</h1>
 			<p class="text-xl text-slate-600 max-w-2xl mx-auto">
-				A lightning-fast, secure SQL client that requires zero backend infrastructure. Connect to any
-				Postgres database through a tiny local proxy.
+				A lightning-fast, secure SQL client that requires zero backend infrastructure. Connect to
+				any Postgres database through a tiny local proxy.
 			</p>
 			<div class="flex flex-col sm:flex-row gap-4 justify-center mt-8">
 				<Button
@@ -194,9 +194,7 @@
 					<div class="bg-slate-900 text-slate-100 p-4 rounded-lg font-mono text-sm space-y-1">
 						<div class="text-green-400">✓ Connected to database!</div>
 						<div class="text-slate-400">→ Open in browser:</div>
-						<div class="text-blue-400 break-all">
-							http://localhost:5173?secret=a1b2c3d4e5f6...
-						</div>
+						<div class="text-blue-400 break-all">http://localhost:5173?secret=a1b2c3d4e5f6...</div>
 					</div>
 				</CardContent>
 			</Card>

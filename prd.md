@@ -764,17 +764,17 @@ postgres-client/
 
 **File**: `web/src/routes/+page.svelte`
 
-- [ ] Parse `?secret` parameter from URL on mount
-- [ ] Show `LandingPage` if no secret
-- [ ] Show connecting state if secret present
-- [ ] Implement connection logic with proxy
-- [ ] Show `ConnectionStatus` component
-- [ ] Show error if connection fails
-- [ ] On successful connection:
-  - [ ] Introspect schema
-  - [ ] Store in schema store
-  - [ ] Show editor UI (placeholder for now)
-- [ ] Add proper error boundaries
+- [x] Parse `?secret` parameter from URL on mount
+- [x] Show `LandingPage` if no secret
+- [x] Show connecting state if secret present
+- [x] Implement connection logic with proxy
+- [x] Show `ConnectionStatus` component
+- [x] Show error if connection fails
+- [x] On successful connection:
+  - [x] Introspect schema
+  - [x] Store in schema store
+  - [x] Show editor UI (placeholder for now)
+- [x] Add proper error boundaries
 
 ### 2.12 Phase 2 - Manual Testing
 
