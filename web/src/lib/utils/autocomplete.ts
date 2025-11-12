@@ -530,3 +530,134 @@ export const ALL_COMPLETIONS = [
 	...ALL_KEYWORDS,
 	...ALL_FUNCTIONS,
 ];
+
+/**
+ * Schema information for autocomplete
+ */
+export interface SchemaInfo {
+	tables: TableInfo[];
+	functions?: FunctionInfo[];
+}
+
+export interface TableInfo {
+	schema: string;
+	name: string;
+	columns: ColumnInfo[];
+}
+
+export interface ColumnInfo {
+	name: string;
+	type: string;
+	nullable: boolean;
+}
+
+export interface FunctionInfo {
+	schema: string;
+	name: string;
+	returnType: string;
+}
+
+/**
+ * Setup SQL autocomplete for Monaco Editor
+ *
+ * Registers a completion item provider that provides:
+ * - SQL keywords (SELECT, FROM, WHERE, etc.)
+ * - PostgreSQL data types (INTEGER, TEXT, JSONB, etc.)
+ * - SQL functions (COUNT, SUM, NOW, etc.)
+ * - Schema-aware completions (tables and columns when schema is provided)
+ *
+ * @param monaco - The Monaco Editor instance
+ * @param schema - Optional schema information for table/column completion
+ * @returns A disposable that can be used to unregister the provider
+ */
+export function setupAutocomplete(
+	monaco: any,
+	schema?: SchemaInfo
+): any {
+	return monaco.languages.registerCompletionItemProvider('sql', {
+		provideCompletionItems: (model: any, position: any) => {
+			// Get the word at the current cursor position
+			const word = model.getWordUntilPosition(position);
+			const range = {
+				startLineNumber: position.lineNumber,
+				endLineNumber: position.lineNumber,
+				startColumn: word.startColumn,
+				endColumn: word.endColumn
+			};
+
+			const suggestions: any[] = [];
+
+			// Add SQL keywords
+			ALL_KEYWORDS.forEach((keyword) => {
+				suggestions.push({
+					label: keyword,
+					kind: monaco.languages.CompletionItemKind.Keyword,
+					insertText: keyword,
+					range: range,
+					sortText: '0_' + keyword, // Prioritize keywords
+					documentation: `SQL keyword: ${keyword}`
+				});
+			});
+
+			// Add SQL functions with snippet support
+			ALL_FUNCTIONS.forEach((func) => {
+				suggestions.push({
+					label: func,
+					kind: monaco.languages.CompletionItemKind.Function,
+					insertText: `${func}($1)`,
+					insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+					range: range,
+					sortText: '1_' + func, // Functions after keywords
+					documentation: `SQL function: ${func}()`
+				});
+			});
+
+			// Add schema-aware completions if schema is provided
+			if (schema) {
+				// Add table names
+				schema.tables.forEach((table) => {
+					suggestions.push({
+						label: table.name,
+						kind: monaco.languages.CompletionItemKind.Class,
+						insertText: table.name,
+						range: range,
+						sortText: '2_' + table.name, // Tables after functions
+						detail: `Table (${table.schema})`,
+						documentation: `Table: ${table.schema}.${table.name}\nColumns: ${table.columns.map(c => c.name).join(', ')}`
+					});
+
+					// Add columns for each table (as table.column)
+					table.columns.forEach((column) => {
+						suggestions.push({
+							label: `${table.name}.${column.name}`,
+							kind: monaco.languages.CompletionItemKind.Field,
+							insertText: `${table.name}.${column.name}`,
+							range: range,
+							sortText: '3_' + table.name + '_' + column.name, // Columns last
+							detail: column.type,
+							documentation: `Column: ${table.name}.${column.name}\nType: ${column.type}\nNullable: ${column.nullable ? 'Yes' : 'No'}`
+						});
+					});
+				});
+
+				// Add custom functions from schema
+				if (schema.functions) {
+					schema.functions.forEach((func) => {
+						suggestions.push({
+							label: func.name,
+							kind: monaco.languages.CompletionItemKind.Function,
+							insertText: `${func.name}($1)`,
+							insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+							range: range,
+							sortText: '1_' + func.name, // With other functions
+							detail: `Returns ${func.returnType}`,
+							documentation: `Custom function: ${func.schema}.${func.name}\nReturns: ${func.returnType}`
+						});
+					});
+				}
+			}
+
+			return { suggestions };
+		}
+	});
+}
