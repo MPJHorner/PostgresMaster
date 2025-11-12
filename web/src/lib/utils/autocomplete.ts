@@ -157,7 +157,7 @@ export const SQL_KEYWORDS = [
 	'REINDEX',
 	'LISTEN',
 	'NOTIFY',
-	'UNLISTEN',
+	'UNLISTEN'
 ];
 
 /**
@@ -250,7 +250,7 @@ export const DATA_TYPES = [
 
 	// Other
 	'ENUM',
-	'COMPOSITE',
+	'COMPOSITE'
 ];
 
 /**
@@ -273,7 +273,7 @@ export const AGGREGATE_FUNCTIONS = [
 	'BIT_OR',
 	'BOOL_AND',
 	'BOOL_OR',
-	'EVERY',
+	'EVERY'
 ];
 
 /**
@@ -312,7 +312,7 @@ export const STRING_FUNCTIONS = [
 	'QUOTE_NULLABLE',
 	'MD5',
 	'ENCODE',
-	'DECODE',
+	'DECODE'
 ];
 
 /**
@@ -344,7 +344,7 @@ export const DATE_TIME_FUNCTIONS = [
 	'CLOCK_TIMESTAMP',
 	'STATEMENT_TIMESTAMP',
 	'TRANSACTION_TIMESTAMP',
-	'TIMEOFDAY',
+	'TIMEOFDAY'
 ];
 
 /**
@@ -387,7 +387,7 @@ export const JSON_FUNCTIONS = [
 	'JSONB_PATH_QUERY',
 	'JSONB_PATH_QUERY_ARRAY',
 	'JSONB_PATH_QUERY_FIRST',
-	'JSONB_PRETTY',
+	'JSONB_PRETTY'
 ];
 
 /**
@@ -427,7 +427,7 @@ export const MATH_FUNCTIONS = [
 	'TANH',
 	'ASINH',
 	'ACOSH',
-	'ATANH',
+	'ATANH'
 ];
 
 /**
@@ -444,20 +444,13 @@ export const WINDOW_FUNCTIONS = [
 	'LEAD',
 	'FIRST_VALUE',
 	'LAST_VALUE',
-	'NTH_VALUE',
+	'NTH_VALUE'
 ];
 
 /**
  * Conditional and comparison functions
  */
-export const CONDITIONAL_FUNCTIONS = [
-	'COALESCE',
-	'NULLIF',
-	'GREATEST',
-	'LEAST',
-	'CAST',
-	'CONVERT',
-];
+export const CONDITIONAL_FUNCTIONS = ['COALESCE', 'NULLIF', 'GREATEST', 'LEAST', 'CAST', 'CONVERT'];
 
 /**
  * System information functions
@@ -474,7 +467,7 @@ export const SYSTEM_FUNCTIONS = [
 	'INET_SERVER_PORT',
 	'PG_BACKEND_PID',
 	'PG_POSTMASTER_START_TIME',
-	'PG_CONF_LOAD_TIME',
+	'PG_CONF_LOAD_TIME'
 ];
 
 /**
@@ -497,7 +490,7 @@ export const ARRAY_FUNCTIONS = [
 	'ARRAY_UPPER',
 	'CARDINALITY',
 	'STRING_TO_ARRAY',
-	'UNNEST',
+	'UNNEST'
 ];
 
 /**
@@ -512,24 +505,18 @@ export const ALL_FUNCTIONS = [
 	...WINDOW_FUNCTIONS,
 	...CONDITIONAL_FUNCTIONS,
 	...SYSTEM_FUNCTIONS,
-	...ARRAY_FUNCTIONS,
+	...ARRAY_FUNCTIONS
 ];
 
 /**
  * All keywords and data types combined
  */
-export const ALL_KEYWORDS = [
-	...SQL_KEYWORDS,
-	...DATA_TYPES,
-];
+export const ALL_KEYWORDS = [...SQL_KEYWORDS, ...DATA_TYPES];
 
 /**
  * Complete list of all SQL completions (keywords, types, and functions)
  */
-export const ALL_COMPLETIONS = [
-	...ALL_KEYWORDS,
-	...ALL_FUNCTIONS,
-];
+export const ALL_COMPLETIONS = [...ALL_KEYWORDS, ...ALL_FUNCTIONS];
 
 /**
  * Schema information for autocomplete
@@ -558,6 +545,119 @@ export interface FunctionInfo {
 }
 
 /**
+ * SQL Context information for context-aware autocomplete
+ */
+interface SQLContext {
+	inFromClause: boolean;
+	inWhereClause: boolean;
+	inSelectClause: boolean;
+	afterTableDot: string | null; // Table name if we're after "tablename."
+	availableTables: string[]; // Tables mentioned in FROM/JOIN clauses
+}
+
+/**
+ * Parse SQL context at cursor position
+ *
+ * Analyzes the SQL text before the cursor to determine:
+ * - Which clause we're in (FROM, WHERE, SELECT)
+ * - If we're after a table name with a dot (for column completion)
+ * - Which tables are available in the current query
+ *
+ * @param model - Monaco editor model
+ * @param position - Current cursor position
+ * @returns Context information for smart suggestions
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function parseSQLContext(model: any, position: any): SQLContext {
+	const context: SQLContext = {
+		inFromClause: false,
+		inWhereClause: false,
+		inSelectClause: false,
+		afterTableDot: null,
+		availableTables: []
+	};
+
+	// Get all text before cursor
+	const textBeforeCursor = model.getValueInRange({
+		startLineNumber: 1,
+		startColumn: 1,
+		endLineNumber: position.lineNumber,
+		endColumn: position.column
+	});
+
+	// Convert to uppercase for easier matching (preserve original for table names)
+	const upperText = textBeforeCursor.toUpperCase();
+
+	// Check if we're after a table name with a dot
+	// Match pattern: tablename. or "tablename". (with quotes)
+	const dotMatch = textBeforeCursor.match(/(?:^|\s)([a-zA-Z_][a-zA-Z0-9_]*)\.\s*$/);
+	if (dotMatch) {
+		context.afterTableDot = dotMatch[1];
+	}
+
+	// Find all table names mentioned in FROM and JOIN clauses
+	// Match: FROM table_name, JOIN table_name
+	const fromMatches = textBeforeCursor.matchAll(/\bFROM\s+([a-zA-Z_][a-zA-Z0-9_]*)/gi);
+	const joinMatches = textBeforeCursor.matchAll(/\bJOIN\s+([a-zA-Z_][a-zA-Z0-9_]*)/gi);
+
+	for (const match of fromMatches) {
+		context.availableTables.push(match[1]);
+	}
+	for (const match of joinMatches) {
+		context.availableTables.push(match[1]);
+	}
+
+	// Determine which clause we're in
+	// Split by major SQL keywords to find context
+	const lastSelect = upperText.lastIndexOf('SELECT');
+	const lastFrom = upperText.lastIndexOf('FROM');
+	const lastWhere = upperText.lastIndexOf('WHERE');
+	const lastGroupBy = upperText.lastIndexOf('GROUP BY');
+	const lastOrderBy = upperText.lastIndexOf('ORDER BY');
+	const lastJoin = upperText.lastIndexOf('JOIN');
+
+	// Find the most recent clause keyword
+	const clausePositions = [
+		{ pos: lastSelect, clause: 'SELECT' },
+		{ pos: lastFrom, clause: 'FROM' },
+		{ pos: lastWhere, clause: 'WHERE' },
+		{ pos: lastGroupBy, clause: 'GROUP BY' },
+		{ pos: lastOrderBy, clause: 'ORDER BY' },
+		{ pos: lastJoin, clause: 'JOIN' }
+	].filter((c) => c.pos !== -1);
+
+	if (clausePositions.length > 0) {
+		const lastClause = clausePositions.reduce((prev, curr) => (prev.pos > curr.pos ? prev : curr));
+
+		switch (lastClause.clause) {
+			case 'FROM':
+			case 'JOIN':
+				context.inFromClause = true;
+				break;
+			case 'WHERE':
+				context.inWhereClause = true;
+				break;
+			case 'SELECT':
+				context.inSelectClause = true;
+				break;
+		}
+	}
+
+	return context;
+}
+
+/**
+ * Get columns for a specific table
+ */
+function getTableColumns(tableName: string, schema?: SchemaInfo): ColumnInfo[] {
+	if (!schema) return [];
+
+	const table = schema.tables.find((t) => t.name.toLowerCase() === tableName.toLowerCase());
+
+	return table ? table.columns : [];
+}
+
+/**
  * Setup SQL autocomplete for Monaco Editor
  *
  * Registers a completion item provider that provides:
@@ -565,16 +665,16 @@ export interface FunctionInfo {
  * - PostgreSQL data types (INTEGER, TEXT, JSONB, etc.)
  * - SQL functions (COUNT, SUM, NOW, etc.)
  * - Schema-aware completions (tables and columns when schema is provided)
+ * - Context-aware suggestions based on cursor position
  *
  * @param monaco - The Monaco Editor instance
  * @param schema - Optional schema information for table/column completion
  * @returns A disposable that can be used to unregister the provider
  */
-export function setupAutocomplete(
-	monaco: any,
-	schema?: SchemaInfo
-): any {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function setupAutocomplete(monaco: any, schema?: SchemaInfo): any {
 	return monaco.languages.registerCompletionItemProvider('sql', {
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		provideCompletionItems: (model: any, position: any) => {
 			// Get the word at the current cursor position
 			const word = model.getWordUntilPosition(position);
@@ -585,7 +685,197 @@ export function setupAutocomplete(
 				endColumn: word.endColumn
 			};
 
+			// Parse SQL context for smart suggestions
+			const context = parseSQLContext(model, position);
+
 			const suggestions: any[] = [];
+
+			// If we're after "tablename.", only suggest columns from that table
+			if (context.afterTableDot && schema) {
+				const columns = getTableColumns(context.afterTableDot, schema);
+				columns.forEach((column) => {
+					suggestions.push({
+						label: column.name,
+						kind: monaco.languages.CompletionItemKind.Field,
+						insertText: column.name,
+						range: range,
+						sortText: '0_' + column.name, // Prioritize columns
+						detail: column.type,
+						documentation: `Column: ${context.afterTableDot}.${column.name}\nType: ${column.type}\nNullable: ${column.nullable ? 'Yes' : 'No'}`
+					});
+				});
+
+				// Return early - only show columns for this table
+				return { suggestions };
+			}
+
+			// Context-aware suggestions based on current clause
+
+			// In FROM clause: prioritize table names
+			if (context.inFromClause && schema) {
+				schema.tables.forEach((table) => {
+					suggestions.push({
+						label: table.name,
+						kind: monaco.languages.CompletionItemKind.Class,
+						insertText: table.name,
+						range: range,
+						sortText: '0_' + table.name, // Prioritize tables in FROM
+						detail: `Table (${table.schema})`,
+						documentation: `Table: ${table.schema}.${table.name}\nColumns: ${table.columns.map((c) => c.name).join(', ')}`
+					});
+				});
+
+				// Add relevant keywords for FROM clause
+				[
+					'JOIN',
+					'INNER',
+					'LEFT',
+					'RIGHT',
+					'FULL',
+					'OUTER',
+					'CROSS',
+					'ON',
+					'USING',
+					'WHERE',
+					'GROUP BY',
+					'ORDER BY',
+					'LIMIT'
+				].forEach((keyword) => {
+					suggestions.push({
+						label: keyword,
+						kind: monaco.languages.CompletionItemKind.Keyword,
+						insertText: keyword,
+						range: range,
+						sortText: '1_' + keyword,
+						documentation: `SQL keyword: ${keyword}`
+					});
+				});
+
+				return { suggestions };
+			}
+
+			// In WHERE clause: prioritize columns from available tables
+			if (context.inWhereClause && schema && context.availableTables.length > 0) {
+				// Add columns from all available tables
+				context.availableTables.forEach((tableName) => {
+					const columns = getTableColumns(tableName, schema);
+					columns.forEach((column) => {
+						suggestions.push({
+							label: `${tableName}.${column.name}`,
+							kind: monaco.languages.CompletionItemKind.Field,
+							insertText: `${tableName}.${column.name}`,
+							range: range,
+							sortText: '0_' + tableName + '_' + column.name,
+							detail: column.type,
+							documentation: `Column: ${tableName}.${column.name}\nType: ${column.type}\nNullable: ${column.nullable ? 'Yes' : 'No'}`
+						});
+					});
+				});
+
+				// Add WHERE-specific keywords and operators
+				[
+					'AND',
+					'OR',
+					'NOT',
+					'IN',
+					'EXISTS',
+					'BETWEEN',
+					'LIKE',
+					'ILIKE',
+					'IS',
+					'NULL',
+					'TRUE',
+					'FALSE'
+				].forEach((keyword) => {
+					suggestions.push({
+						label: keyword,
+						kind: monaco.languages.CompletionItemKind.Keyword,
+						insertText: keyword,
+						range: range,
+						sortText: '1_' + keyword,
+						documentation: `SQL keyword: ${keyword}`
+					});
+				});
+
+				// Add comparison operators
+				['=', '!=', '<>', '<', '>', '<=', '>='].forEach((op) => {
+					suggestions.push({
+						label: op,
+						kind: monaco.languages.CompletionItemKind.Operator,
+						insertText: op,
+						range: range,
+						sortText: '1_' + op,
+						documentation: `Comparison operator: ${op}`
+					});
+				});
+
+				return { suggestions };
+			}
+
+			// In SELECT clause: prioritize columns and functions
+			if (context.inSelectClause && schema && context.availableTables.length > 0) {
+				// Add columns from available tables
+				context.availableTables.forEach((tableName) => {
+					const columns = getTableColumns(tableName, schema);
+					columns.forEach((column) => {
+						suggestions.push({
+							label: `${tableName}.${column.name}`,
+							kind: monaco.languages.CompletionItemKind.Field,
+							insertText: `${tableName}.${column.name}`,
+							range: range,
+							sortText: '0_' + tableName + '_' + column.name,
+							detail: column.type,
+							documentation: `Column: ${tableName}.${column.name}\nType: ${column.type}`
+						});
+					});
+				});
+
+				// Add aggregate functions (common in SELECT)
+				AGGREGATE_FUNCTIONS.forEach((func) => {
+					suggestions.push({
+						label: func,
+						kind: monaco.languages.CompletionItemKind.Function,
+						insertText: `${func}($1)`,
+						insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+						range: range,
+						sortText: '0_' + func,
+						documentation: `Aggregate function: ${func}()`
+					});
+				});
+
+				// Add other functions
+				ALL_FUNCTIONS.forEach((func) => {
+					if (!AGGREGATE_FUNCTIONS.includes(func)) {
+						suggestions.push({
+							label: func,
+							kind: monaco.languages.CompletionItemKind.Function,
+							insertText: `${func}($1)`,
+							insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+							range: range,
+							sortText: '1_' + func,
+							documentation: `SQL function: ${func}()`
+						});
+					}
+				});
+
+				// Add SELECT-specific keywords
+				['FROM', 'AS', 'DISTINCT', 'ALL', 'CASE', 'WHEN', 'THEN', 'ELSE', 'END'].forEach(
+					(keyword) => {
+						suggestions.push({
+							label: keyword,
+							kind: monaco.languages.CompletionItemKind.Keyword,
+							insertText: keyword,
+							range: range,
+							sortText: '2_' + keyword,
+							documentation: `SQL keyword: ${keyword}`
+						});
+					}
+				);
+
+				return { suggestions };
+			}
+
+			// Default: provide all suggestions (no specific context detected)
 
 			// Add SQL keywords
 			ALL_KEYWORDS.forEach((keyword) => {
@@ -623,7 +913,7 @@ export function setupAutocomplete(
 						range: range,
 						sortText: '2_' + table.name, // Tables after functions
 						detail: `Table (${table.schema})`,
-						documentation: `Table: ${table.schema}.${table.name}\nColumns: ${table.columns.map(c => c.name).join(', ')}`
+						documentation: `Table: ${table.schema}.${table.name}\nColumns: ${table.columns.map((c) => c.name).join(', ')}`
 					});
 
 					// Add columns for each table (as table.column)
