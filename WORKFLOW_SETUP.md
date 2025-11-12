@@ -2,7 +2,7 @@
 
 ## ⚠️ Important: Manual Workflow File Creation Required
 
-Due to GitHub App permission restrictions, the workflow file `.github/workflows/test.yml` could not be pushed automatically. You need to create it manually via the GitHub UI.
+Due to GitHub App permission restrictions, the workflow files `.github/workflows/test.yml` and `.github/workflows/release.yml` could not be pushed automatically. You need to create them manually via the GitHub UI.
 
 ## 📋 Instructions
 
@@ -255,9 +255,79 @@ If the workflow fails:
 - Once created via GitHub UI, future updates can be made through normal PRs
 - The workflow is production-ready and follows GitHub Actions best practices
 
+---
+
+## 📄 Release Workflow (release.yml)
+
+### What It Does
+
+The release workflow automatically creates GitHub releases with binaries for all platforms when you push a version tag.
+
+### Workflow File Location
+
+The workflow file is already created locally at:
+```
+/home/user/PostgresMaster/.github/workflows/release.yml
+```
+
+### Features
+
+- ✅ Triggered on version tags (e.g., `v0.1.0`, `v1.2.3`)
+- ✅ Builds binaries for all platforms:
+  - Windows (amd64)
+  - macOS (Intel and Apple Silicon)
+  - Linux (amd64 and arm64)
+- ✅ Calculates SHA256 checksums for verification
+- ✅ Generates detailed release notes with quick start guide
+- ✅ Creates GitHub release and uploads all binaries
+- ✅ Optionally builds and deploys web app to Cloudflare Pages
+
+### How to Use
+
+Once the workflow is set up, creating a release is simple:
+
+```bash
+# Tag your release
+git tag v0.1.0
+git push origin v0.1.0
+
+# The workflow will automatically:
+# 1. Build all platform binaries
+# 2. Calculate checksums
+# 3. Create a GitHub release
+# 4. Upload all binaries
+# 5. Deploy web app (if configured)
+```
+
+### Creating the Release Workflow
+
+Use the same instructions as above (Option 1, 2, or 3) but for the file:
+```
+.github/workflows/release.yml
+```
+
+The complete workflow content is available at:
+```
+/home/user/PostgresMaster/.github/workflows/release.yml
+```
+
+---
+
 ## ✅ Next Steps
 
-1. Create the workflow file using one of the methods above
-2. Verify the Actions tab shows the workflow
-3. Create a test PR to trigger the workflow
-4. Once verified, delete this `WORKFLOW_SETUP.md` file
+1. Create both workflow files (test.yml and release.yml) using one of the methods above
+2. Verify the Actions tab shows both workflows
+3. Create a test PR to trigger the test workflow
+4. Create a test tag (e.g., v0.0.1) to test the release workflow
+5. Once verified, delete this `WORKFLOW_SETUP.md` file
+
+## 📋 Summary
+
+**Files Created Locally:**
+- ✅ `.github/workflows/test.yml` - CI/CD testing and linting
+- ✅ `.github/workflows/release.yml` - Automated releases
+- ✅ Updated `prd.md` (Section 5.8 marked complete)
+
+**Commit:** `9a9bdbc - Implement PRD Section 5.8: GitHub Actions CI/CD workflows`
+
+**Status:** Workflows created locally but need to be pushed to GitHub manually due to permission restrictions.
