@@ -971,15 +971,15 @@ postgres-client/
 
 **File**: `web/src/lib/utils/format.ts`
 
-- [ ] Create `formatValue(value)` function
-- [ ] Handle null/undefined → "NULL"
-- [ ] Handle boolean → "true"/"false"
-- [ ] Handle number → toString()
-- [ ] Handle string → as-is
-- [ ] Handle Date → toISOString()
-- [ ] Handle Array → JSON.stringify
-- [ ] Handle Object → JSON.stringify with pretty print
-- [ ] Add unit tests for all data types
+- [x] Create `formatValue(value)` function
+- [x] Handle null/undefined → "NULL"
+- [x] Handle boolean → "true"/"false"
+- [x] Handle number → toString()
+- [x] Handle string → as-is
+- [x] Handle Date → toISOString()
+- [x] Handle Array → JSON.stringify
+- [x] Handle Object → JSON.stringify with pretty print
+- [x] Add unit tests for all data types
 
 ### 4.3 Results Table Component
 
