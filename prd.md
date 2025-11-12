@@ -693,18 +693,18 @@ postgres-client/
 
 **File**: `web/src/lib/services/websocket.ts`
 
-- [ ] Install uuid: `npm install uuid && npm install -D @types/uuid`
-- [ ] Create `PostgresProxyClient` class
-- [ ] Implement constructor with secret
-- [ ] Implement `connect()` method
-- [ ] Implement WebSocket message handling
-- [ ] Implement request/response correlation with message IDs
-- [ ] Implement `executeQuery(sql, params)` method
-- [ ] Implement `introspectSchema()` method
-- [ ] Implement `close()` method
-- [ ] Add error handling and reconnection logic
-- [ ] Add TypeScript types for all methods
-- [ ] Add JSDoc comments
+- [x] Install uuid: `npm install uuid && npm install -D @types/uuid`
+- [x] Create `PostgresProxyClient` class
+- [x] Implement constructor with secret
+- [x] Implement `connect()` method
+- [x] Implement WebSocket message handling
+- [x] Implement request/response correlation with message IDs
+- [x] Implement `executeQuery(sql, params)` method
+- [x] Implement `introspectSchema()` method
+- [x] Implement `close()` method
+- [x] Add error handling and reconnection logic
+- [x] Add TypeScript types for all methods
+- [x] Add JSDoc comments
 
 ### 2.7 Connection Store
 
