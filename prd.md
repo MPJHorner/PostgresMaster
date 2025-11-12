@@ -840,19 +840,19 @@ postgres-client/
 
 **File**: `web/src/lib/utils/autocomplete.ts`
 
-- [ ] Create comprehensive Postgres keywords array:
-  - [ ] SELECT, FROM, WHERE, JOIN, etc.
-  - [ ] INSERT, UPDATE, DELETE, etc.
-  - [ ] CREATE, DROP, ALTER, etc.
-  - [ ] Postgres-specific: RETURNING, CONFLICT, JSONB, UUID, etc.
-  - [ ] Data types: INTEGER, TEXT, TIMESTAMP, etc.
-  - [ ] Constraints: PRIMARY KEY, FOREIGN KEY, etc.
-- [ ] Create functions array:
-  - [ ] COUNT, SUM, AVG, MIN, MAX
-  - [ ] NOW, CURRENT_TIMESTAMP, etc.
-  - [ ] String functions: CONCAT, LOWER, UPPER, etc.
-  - [ ] JSON functions: JSON_AGG, JSONB_AGG, etc.
-  - [ ] Window functions: ROW_NUMBER, RANK, etc.
+- [x] Create comprehensive Postgres keywords array:
+  - [x] SELECT, FROM, WHERE, JOIN, etc.
+  - [x] INSERT, UPDATE, DELETE, etc.
+  - [x] CREATE, DROP, ALTER, etc.
+  - [x] Postgres-specific: RETURNING, CONFLICT, JSONB, UUID, etc.
+  - [x] Data types: INTEGER, TEXT, TIMESTAMP, etc.
+  - [x] Constraints: PRIMARY KEY, FOREIGN KEY, etc.
+- [x] Create functions array:
+  - [x] COUNT, SUM, AVG, MIN, MAX
+  - [x] NOW, CURRENT_TIMESTAMP, etc.
+  - [x] String functions: CONCAT, LOWER, UPPER, etc.
+  - [x] JSON functions: JSON_AGG, JSONB_AGG, etc.
+  - [x] Window functions: ROW_NUMBER, RANK, etc.
 
 ### 3.4 Basic Keyword Autocomplete
 
