@@ -16,21 +16,21 @@ func TestNewClient_InvalidConnectionString(t *testing.T) {
 	ctx := context.Background()
 
 	testCases := []struct {
-		name     string
-		connStr  string
-		wantErr  bool
+		name      string
+		connStr   string
+		wantErr   bool
 		errSubstr string
 	}{
 		{
-			name:     "invalid connection string format",
-			connStr:  "not-a-valid-connection-string",
-			wantErr:  true,
+			name:      "invalid connection string format",
+			connStr:   "not-a-valid-connection-string",
+			wantErr:   true,
 			errSubstr: "parse",
 		},
 		{
-			name:     "invalid port format",
-			connStr:  "postgres://user:pass@localhost:notaport/db",
-			wantErr:  true,
+			name:      "invalid port format",
+			connStr:   "postgres://user:pass@localhost:notaport/db",
+			wantErr:   true,
 			errSubstr: "",
 		},
 	}
