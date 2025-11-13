@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/MPJHorner/PostgresMaster/proxy/pkg/protocol"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/MPJHorner/PostgresMaster/proxy/pkg/protocol"
 )
 
 // Client represents a connection to a PostgreSQL database

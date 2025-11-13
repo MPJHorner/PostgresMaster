@@ -18,8 +18,8 @@ import (
 
 // MockPostgresClient implements the PostgresClient interface for testing
 type MockPostgresClient struct {
-	ExecuteQueryFunc      func(ctx context.Context, sql string, params []interface{}) (*postgres.QueryResult, error)
-	IntrospectSchemaFunc  func(ctx context.Context) (*protocol.SchemaPayload, error)
+	ExecuteQueryFunc     func(ctx context.Context, sql string, params []interface{}) (*postgres.QueryResult, error)
+	IntrospectSchemaFunc func(ctx context.Context) (*protocol.SchemaPayload, error)
 }
 
 func (m *MockPostgresClient) ExecuteQuery(ctx context.Context, sql string, params []interface{}) (*postgres.QueryResult, error) {
