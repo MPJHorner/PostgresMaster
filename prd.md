@@ -1371,11 +1371,11 @@ Create test queries file for manual testing:
 - [ ] Test all edge cases
 
 **Proxy**:
-- [ ] Improve CLI help text
-- [ ] Improve error messages
-- [ ] Add version command
-- [ ] Polish output formatting
-- [ ] Test all edge cases
+- [x] Improve CLI help text
+- [x] Improve error messages
+- [x] Add version command
+- [x] Polish output formatting
+- [x] Test all edge cases
 
 ### 5.13 Pre-Launch Checklist
 
