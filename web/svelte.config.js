@@ -16,7 +16,7 @@ const config = {
 		}),
 		// Handle missing favicon during prerender
 		prerender: {
-			handleHttpError: ({ path, referrer, message }) => {
+			handleHttpError: ({ path, message }) => {
 				// Ignore 404 for favicon during prerender
 				if (path === '/favicon.png') {
 					return;

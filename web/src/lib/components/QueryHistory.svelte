@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { queryHistory, type QueryHistoryItem } from '$lib/stores/history';
+	import { queryHistory } from '$lib/stores/history';
 	import { Button, Card, Badge } from '$lib/components/ui';
 	import { Clock, CheckCircle, XCircle, RotateCcw } from 'lucide-svelte';
 
@@ -69,7 +69,7 @@
 		</div>
 	{:else}
 		<div class="space-y-2">
-			{#each recentQueries as item, index (item.timestamp.getTime())}
+			{#each recentQueries as item (item.timestamp.getTime())}
 				<button
 					class="w-full rounded-lg border p-3 text-left transition-colors hover:bg-accent"
 					on:click={() => onQuerySelect(item.sql)}
