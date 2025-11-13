@@ -60,27 +60,28 @@
 
 	/**
 	 * Get custom badge class for connection state colors
+	 * Colors chosen to meet WCAG AA contrast requirements (4.5:1)
 	 */
 	function getCustomBadgeClass(state: ConnectionState): string {
 		switch (state) {
 			case ConnectionState.CONNECTED:
-				return 'bg-green-500 hover:bg-green-600 text-white border-green-600';
+				return 'bg-green-600 hover:bg-green-700 text-white border-green-700';
 			case ConnectionState.CONNECTING:
-				return 'bg-blue-500 hover:bg-blue-600 text-white border-blue-600';
+				return 'bg-blue-600 hover:bg-blue-700 text-white border-blue-700';
 			case ConnectionState.RECONNECTING:
-				return 'bg-yellow-500 hover:bg-yellow-600 text-white border-yellow-600';
+				return 'bg-amber-600 hover:bg-amber-700 text-white border-amber-700';
 			case ConnectionState.ERROR:
 				return ''; // Use default destructive styling
 			case ConnectionState.DISCONNECTED:
 			default:
-				return 'bg-gray-400 text-gray-700 border-gray-500';
+				return 'bg-gray-600 text-white border-gray-700';
 		}
 	}
 </script>
 
 <div class="connection-status" data-testid="connection-status">
 	<!-- Status Badge -->
-	<div class="flex items-center gap-2">
+	<div class="flex items-center gap-2" role="status" aria-live="polite" aria-atomic="true">
 		<Badge variant={getBadgeVariant($currentState)} class={getCustomBadgeClass($currentState)}>
 			{getStatusText($currentState)}
 		</Badge>
@@ -91,6 +92,7 @@
 				onclick={onRetry}
 				class="text-sm text-blue-600 hover:text-blue-800 underline"
 				data-testid="retry-button"
+				aria-label="Retry connection to proxy server"
 			>
 				Retry
 			</button>

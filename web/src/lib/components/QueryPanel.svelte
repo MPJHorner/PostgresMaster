@@ -184,8 +184,8 @@
 				<!-- Loading State -->
 				<Card>
 					<CardContent class="py-12">
-						<div class="flex flex-col items-center justify-center gap-4 text-muted-foreground">
-							<Loader2 class="h-8 w-8 animate-spin" />
+						<div class="flex flex-col items-center justify-center gap-4 text-muted-foreground" role="status" aria-live="polite">
+							<Loader2 class="h-8 w-8 animate-spin" aria-label="Loading query results" />
 							<p>Executing query...</p>
 						</div>
 					</CardContent>

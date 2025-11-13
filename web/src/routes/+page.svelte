@@ -101,6 +101,9 @@
 
 <!-- Main Page Layout -->
 <div class="min-h-screen bg-background">
+	<!-- Skip to main content link for keyboard users -->
+	<a href="#main-content" class="skip-to-main">Skip to main content</a>
+
 	{#if !secret}
 		<!-- No secret in URL: Show landing page -->
 		<LandingPage />
@@ -114,9 +117,9 @@
 				</CardHeader>
 				<CardContent>
 					<div class="flex items-center justify-center py-8">
-						<div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+						<div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" role="status" aria-label="Connecting to proxy server"></div>
 					</div>
-					<p class="text-center text-muted-foreground text-sm">This may take a few seconds...</p>
+					<p class="text-center text-muted-foreground text-sm" aria-live="polite">This may take a few seconds...</p>
 				</CardContent>
 			</Card>
 		</div>
@@ -149,15 +152,17 @@
 		<!-- Successfully connected -->
 		<div class="container mx-auto px-4 py-8">
 			<!-- Header with connection status -->
-			<div class="mb-6">
+			<header class="mb-6">
 				<div class="flex items-center justify-between">
 					<h1 class="text-3xl font-bold">PostgreSQL Client</h1>
 					<ConnectionStatus onRetry={handleRetry} />
 				</div>
-			</div>
+			</header>
 
 			<!-- Query Panel with Editor and Results -->
-			<QueryPanel />
+			<main role="main" id="main-content">
+				<QueryPanel />
+			</main>
 		</div>
 	{/if}
 </div>
