@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#336791;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#275d7d;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <!-- Elephant body (simplified Postgres logo style) -->
+  <ellipse cx="50" cy="55" rx="35" ry="28" fill="url(#grad)"/>
+  <!-- Elephant head -->
+  <ellipse cx="50" cy="35" rx="28" ry="25" fill="url(#grad)"/>
+  <!-- Trunk suggestion -->
+  <path d="M 50 50 Q 45 60, 48 68" stroke="#275d7d" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <!-- Eye -->
+  <circle cx="45" cy="32" r="3" fill="#ffffff"/>
+  <!-- Ear -->
+  <ellipse cx="65" cy="30" rx="8" ry="12" fill="#275d7d" opacity="0.7"/>
+  <!-- Database symbol overlay (cylinder lines) -->
+  <line x1="30" y1="65" x2="70" y2="65" stroke="#ffffff" stroke-width="1.5" opacity="0.6"/>
+  <line x1="30" y1="72" x2="70" y2="72" stroke="#ffffff" stroke-width="1.5" opacity="0.6"/>
+</svg>
