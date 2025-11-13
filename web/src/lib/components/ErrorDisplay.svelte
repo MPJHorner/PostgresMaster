@@ -64,10 +64,6 @@
 
 <style>
 	.error-display :global(.font-mono) {
-		font-family:
-			'Fira Code',
-			'Consolas',
-			'Monaco',
-			monospace;
+		font-family: 'Fira Code', 'Consolas', 'Monaco', monospace;
 	}
 </style>

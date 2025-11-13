@@ -1044,8 +1044,27 @@ postgres-client/
 **File**: `web/src/lib/components/QueryPanel.svelte`
 
 - [x] Add queries to history on execution
-- [ ] (Optional) Display recent queries in sidebar/dropdown
-- [ ] (Optional) Click to load query into editor
+- [x] (Optional) Display recent queries in sidebar/dropdown
+- [x] (Optional) Click to load query into editor
+
+**File**: `web/src/lib/components/QueryHistory.svelte`
+
+- [x] Create QueryHistory component with list of recent queries
+- [x] Display query metadata (timestamp, execution time, row count, success/error status)
+- [x] Implement click-to-load functionality
+- [x] Implement clear history button
+- [x] Format timestamps as relative time (e.g., "5m ago")
+- [x] Truncate long SQL queries for display
+- [x] Show success/error badges
+- [x] Responsive layout (sidebar on desktop, full width on mobile)
+
+**File**: `web/src/lib/components/QueryHistory.test.ts`
+
+- [x] Create comprehensive unit tests for query history logic
+- [x] Test store integration
+- [x] Test SQL truncation
+- [x] Test timestamp formatting
+- [x] Test history limits
 
 ### 4.7 Sample Queries for Testing
 

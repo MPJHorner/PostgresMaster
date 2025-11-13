@@ -3,14 +3,8 @@
 	import Editor from './Editor.svelte';
 	import ErrorDisplay from './ErrorDisplay.svelte';
 	import Results from './Results.svelte';
-	import {
-		Button,
-		Card,
-		CardContent,
-		CardHeader,
-		CardTitle,
-		Separator
-	} from '$lib/components/ui';
+	import QueryHistory from './QueryHistory.svelte';
+	import { Button, Card, CardContent, CardHeader, CardTitle, Separator } from '$lib/components/ui';
 	import { connectionStore } from '$lib/stores/connection';
 	import { schemaStore } from '$lib/stores/schema';
 	import { queryHistory } from '$lib/stores/history';
@@ -128,6 +122,17 @@
 		executeQuery();
 	}
 
+	/**
+	 * Handles loading a query from history into the editor
+	 */
+	function handleQuerySelect(historySql: string) {
+		sql = historySql;
+		// Optionally, set focus on the editor if we have a reference to it
+		if (editor) {
+			editor.focus();
+		}
+	}
+
 	// Set initial query example on mount
 	onMount(() => {
 		sql =
@@ -135,83 +140,115 @@
 	});
 </script>
 
-<div class="query-panel flex flex-col h-full gap-4">
-	<!-- Query Editor Section -->
-	<Card class="flex-shrink-0">
-		<CardHeader class="pb-3">
-			<div class="flex items-center justify-between">
-				<CardTitle class="text-lg">SQL Query Editor</CardTitle>
-				<Button
-					onclick={executeQuery}
-					disabled={loading || !client}
-					class="gap-2"
-					variant="default"
-				>
-					{#if loading}
-						<Loader2 class="h-4 w-4 animate-spin" />
-						Executing...
-					{:else}
-						<Play class="h-4 w-4" />
-						Run Query
-					{/if}
-					<span class="text-xs opacity-70 ml-1">(Ctrl+Enter)</span>
-				</Button>
-			</div>
-		</CardHeader>
-		<CardContent>
-			<Editor
-				bind:this={editor}
-				bind:value={sql}
-				onChange={handleSqlChange}
-				onExecute={handleExecute}
-				height="300px"
-				{schema}
-			/>
-		</CardContent>
-	</Card>
+<div class="query-panel-container">
+	<div class="query-panel flex flex-col h-full gap-4">
+		<!-- Query Editor Section -->
+		<Card class="flex-shrink-0">
+			<CardHeader class="pb-3">
+				<div class="flex items-center justify-between">
+					<CardTitle class="text-lg">SQL Query Editor</CardTitle>
+					<Button
+						onclick={executeQuery}
+						disabled={loading || !client}
+						class="gap-2"
+						variant="default"
+					>
+						{#if loading}
+							<Loader2 class="h-4 w-4 animate-spin" />
+							Executing...
+						{:else}
+							<Play class="h-4 w-4" />
+							Run Query
+						{/if}
+						<span class="text-xs opacity-70 ml-1">(Ctrl+Enter)</span>
+					</Button>
+				</div>
+			</CardHeader>
+			<CardContent>
+				<Editor
+					bind:this={editor}
+					bind:value={sql}
+					onChange={handleSqlChange}
+					onExecute={handleExecute}
+					height="300px"
+					{schema}
+				/>
+			</CardContent>
+		</Card>
 
-	<Separator />
+		<Separator />
 
-	<!-- Results Section -->
-	<div class="results-section flex-1 overflow-auto">
-		{#if loading}
-			<!-- Loading State -->
-			<Card>
-				<CardContent class="py-12">
-					<div class="flex flex-col items-center justify-center gap-4 text-muted-foreground">
-						<Loader2 class="h-8 w-8 animate-spin" />
-						<p>Executing query...</p>
-					</div>
-				</CardContent>
-			</Card>
-		{:else if error}
-			<!-- Error Display -->
-			<ErrorDisplay {error} />
-		{:else if results}
-			<!-- Results Display -->
-			<Results data={results} />
-		{:else}
-			<!-- Empty State -->
-			<Card>
-				<CardContent class="py-12">
-					<div class="flex flex-col items-center justify-center gap-2 text-muted-foreground">
-						<Play class="h-8 w-8 opacity-50" />
-						<p>Execute a query to see results</p>
-						<p class="text-xs">Type your SQL above and press Ctrl+Enter or click Run</p>
-					</div>
-				</CardContent>
-			</Card>
-		{/if}
+		<!-- Results Section -->
+		<div class="results-section flex-1 overflow-auto">
+			{#if loading}
+				<!-- Loading State -->
+				<Card>
+					<CardContent class="py-12">
+						<div class="flex flex-col items-center justify-center gap-4 text-muted-foreground">
+							<Loader2 class="h-8 w-8 animate-spin" />
+							<p>Executing query...</p>
+						</div>
+					</CardContent>
+				</Card>
+			{:else if error}
+				<!-- Error Display -->
+				<ErrorDisplay {error} />
+			{:else if results}
+				<!-- Results Display -->
+				<Results data={results} />
+			{:else}
+				<!-- Empty State -->
+				<Card>
+					<CardContent class="py-12">
+						<div class="flex flex-col items-center justify-center gap-2 text-muted-foreground">
+							<Play class="h-8 w-8 opacity-50" />
+							<p>Execute a query to see results</p>
+							<p class="text-xs">Type your SQL above and press Ctrl+Enter or click Run</p>
+						</div>
+					</CardContent>
+				</Card>
+			{/if}
+		</div>
 	</div>
+
+	<!-- Query History Sidebar -->
+	<aside class="query-history-sidebar">
+		<QueryHistory onQuerySelect={handleQuerySelect} />
+	</aside>
 </div>
 
 <style>
+	.query-panel-container {
+		display: grid;
+		grid-template-columns: 1fr 350px;
+		gap: 1rem;
+		height: 100%;
+		width: 100%;
+	}
+
 	.query-panel {
 		width: 100%;
 		max-width: 100%;
+		min-width: 0; /* Prevent grid blowout */
+	}
+
+	.query-history-sidebar {
+		overflow-y: auto;
+		max-height: calc(100vh - 200px);
 	}
 
 	.results-section {
 		min-height: 200px;
+	}
+
+	/* Responsive layout for smaller screens */
+	@media (max-width: 1024px) {
+		.query-panel-container {
+			grid-template-columns: 1fr;
+		}
+
+		.query-history-sidebar {
+			max-height: 400px;
+		}
 	}
 </style>

@@ -1,10 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import {
-	formatValue,
-	formatColumnType,
-	formatExecutionTime,
-	formatRowCount
-} from './format';
+import { formatValue, formatColumnType, formatExecutionTime, formatRowCount } from './format';
 
 describe('formatValue', () => {
 	describe('null and undefined', () => {
@@ -110,7 +105,12 @@ describe('formatValue', () => {
 		});
 
 		it('should format nested arrays', () => {
-			expect(formatValue([[1, 2], [3, 4]])).toBe('[[1,2],[3,4]]');
+			expect(
+				formatValue([
+					[1, 2],
+					[3, 4]
+				])
+			).toBe('[[1,2],[3,4]]');
 		});
 
 		it('should format array with objects', () => {

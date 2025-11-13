@@ -6,7 +6,12 @@
 
 import { describe, it, expect } from 'vitest';
 import type { ResultPayload, ColumnInfo } from '$lib/services/protocol';
-import { formatValue, formatColumnType, formatExecutionTime, formatRowCount } from '$lib/utils/format';
+import {
+	formatValue,
+	formatColumnType,
+	formatExecutionTime,
+	formatRowCount
+} from '$lib/utils/format';
 
 describe('Results Component', () => {
 	it('should import Results component without errors', async () => {
@@ -160,9 +165,7 @@ describe('Results Component', () => {
 
 	describe('Large result set handling', () => {
 		it('should create large result set', () => {
-			const columns: ColumnInfo[] = [
-				{ name: 'n', dataType: 'integer' }
-			];
+			const columns: ColumnInfo[] = [{ name: 'n', dataType: 'integer' }];
 			const rows = Array.from({ length: 1000 }, (_, i) => ({ n: i + 1 }));
 			const result: ResultPayload = {
 				rows,
