@@ -61,9 +61,3 @@
 		{/if}
 	</AlertDescription>
 </Alert>
-
-<style>
-	.error-display :global(.font-mono) {
-		font-family: 'Fira Code', 'Consolas', 'Monaco', monospace;
-	}
-</style>

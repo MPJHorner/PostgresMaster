@@ -2,7 +2,7 @@
  * Connection Store Tests
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { get } from 'svelte/store';
 import {
 	connectionStore,
@@ -19,7 +19,7 @@ import {
 	resetConnection,
 	getConnectionState
 } from './connection';
-import { ConnectionState } from '$lib/services/websocket';
+import { ConnectionState, type PostgresProxyClient } from '$lib/services/websocket';
 
 describe('Connection Store', () => {
 	beforeEach(() => {
@@ -62,7 +62,7 @@ describe('Connection Store', () => {
 		it('isConnected should be true when state is CONNECTED and client exists', () => {
 			connectionStore.set({
 				state: ConnectionState.CONNECTED,
-				client: {} as any, // Mock client
+				client: {} as PostgresProxyClient,
 				error: null,
 				secret: 'test-secret'
 			});
@@ -149,7 +149,7 @@ describe('Connection Store', () => {
 		});
 
 		it('client should return the client instance', () => {
-			const mockClient = {} as any;
+			const mockClient = {} as PostgresProxyClient;
 			connectionStore.set({
 				state: ConnectionState.CONNECTED,
 				client: mockClient,
@@ -182,7 +182,7 @@ describe('Connection Store', () => {
 		it('disconnect should reset to initial state', () => {
 			connectionStore.set({
 				state: ConnectionState.CONNECTED,
-				client: {} as any,
+				client: {} as PostgresProxyClient,
 				error: null,
 				secret: 'test-secret'
 			});
@@ -199,7 +199,7 @@ describe('Connection Store', () => {
 		it('resetConnection should reset to initial state', () => {
 			connectionStore.set({
 				state: ConnectionState.CONNECTED,
-				client: {} as any,
+				client: {} as PostgresProxyClient,
 				error: 'Some error',
 				secret: 'test-secret'
 			});
@@ -216,7 +216,7 @@ describe('Connection Store', () => {
 		it('getConnectionState should return current state synchronously', () => {
 			const testState = {
 				state: ConnectionState.CONNECTED,
-				client: {} as any,
+				client: {} as PostgresProxyClient,
 				error: null,
 				secret: 'test-secret'
 			};
@@ -237,7 +237,7 @@ describe('Connection Store', () => {
 
 			connectionStore.set({
 				state: ConnectionState.CONNECTED,
-				client: {} as any,
+				client: {} as PostgresProxyClient,
 				error: null,
 				secret: 'test-secret'
 			});

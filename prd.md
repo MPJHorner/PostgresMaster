@@ -1174,11 +1174,11 @@ Create test queries file for manual testing:
 - [ ] Commit formatted code
 
 **Web App**:
-- [ ] Run ESLint: `npm run lint`
-- [ ] Fix all errors
-- [ ] Fix all warnings
-- [ ] Run Prettier: `npm run format`
-- [ ] Commit formatted code
+- [x] Run ESLint: `npm run lint`
+- [x] Fix all errors
+- [x] Fix all warnings
+- [x] Run Prettier: `npm run format`
+- [x] Commit formatted code
 
 ### 5.4 Code Quality - Type Checking
 

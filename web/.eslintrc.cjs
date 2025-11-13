@@ -26,6 +26,18 @@ module.exports = {
 			parserOptions: {
 				parser: '@typescript-eslint/parser'
 			}
+		},
+		{
+			// Disable custom element warnings for shadcn-svelte UI components
+			files: ['src/lib/components/ui/**/*.svelte'],
+			rules: {
+				'svelte/valid-compile': [
+					'error',
+					{
+						ignoreWarnings: true
+					}
+				]
+			}
 		}
 	]
 };

@@ -569,10 +569,7 @@ interface SQLContext {
  * @param position - Current cursor position
  * @returns Context information for smart suggestions
  */
-function parseSQLContext(
-	model: Monaco.editor.ITextModel,
-	position: Monaco.Position
-): SQLContext {
+function parseSQLContext(model: Monaco.editor.ITextModel, position: Monaco.Position): SQLContext {
 	const context: SQLContext = {
 		inFromClause: false,
 		inWhereClause: false,
@@ -675,15 +672,9 @@ function getTableColumns(tableName: string, schema?: SchemaInfo): ColumnInfo[] {
  * @param schema - Optional schema information for table/column completion
  * @returns A disposable that can be used to unregister the provider
  */
-export function setupAutocomplete(
-	monaco: typeof Monaco,
-	schema?: SchemaInfo
-): Monaco.IDisposable {
+export function setupAutocomplete(monaco: typeof Monaco, schema?: SchemaInfo): Monaco.IDisposable {
 	return monaco.languages.registerCompletionItemProvider('sql', {
-		provideCompletionItems: (
-			model: Monaco.editor.ITextModel,
-			position: Monaco.Position
-		) => {
+		provideCompletionItems: (model: Monaco.editor.ITextModel, position: Monaco.Position) => {
 			// Get the word at the current cursor position
 			const word = model.getWordUntilPosition(position);
 			const range = {

@@ -17,7 +17,7 @@ vi.mock('monaco-editor', () => {
 		setPosition: vi.fn(),
 		focus: vi.fn(),
 		dispose: vi.fn(),
-		_changeCallback: null as any
+		_changeCallback: null as ((callback: unknown) => void) | null
 	};
 
 	return {
