@@ -5,6 +5,8 @@
  * specifically for PostgreSQL, used in Monaco Editor autocomplete functionality.
  */
 
+import type * as Monaco from 'monaco-editor';
+
 /**
  * Core SQL keywords and PostgreSQL-specific keywords
  */
@@ -567,8 +569,10 @@ interface SQLContext {
  * @param position - Current cursor position
  * @returns Context information for smart suggestions
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function parseSQLContext(model: any, position: any): SQLContext {
+function parseSQLContext(
+	model: Monaco.editor.ITextModel,
+	position: Monaco.Position
+): SQLContext {
 	const context: SQLContext = {
 		inFromClause: false,
 		inWhereClause: false,
@@ -671,11 +675,15 @@ function getTableColumns(tableName: string, schema?: SchemaInfo): ColumnInfo[] {
  * @param schema - Optional schema information for table/column completion
  * @returns A disposable that can be used to unregister the provider
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function setupAutocomplete(monaco: any, schema?: SchemaInfo): any {
+export function setupAutocomplete(
+	monaco: typeof Monaco,
+	schema?: SchemaInfo
+): Monaco.IDisposable {
 	return monaco.languages.registerCompletionItemProvider('sql', {
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		provideCompletionItems: (model: any, position: any) => {
+		provideCompletionItems: (
+			model: Monaco.editor.ITextModel,
+			position: Monaco.Position
+		) => {
 			// Get the word at the current cursor position
 			const word = model.getWordUntilPosition(position);
 			const range = {
@@ -688,7 +696,7 @@ export function setupAutocomplete(monaco: any, schema?: SchemaInfo): any {
 			// Parse SQL context for smart suggestions
 			const context = parseSQLContext(model, position);
 
-			const suggestions: any[] = [];
+			const suggestions: Monaco.languages.CompletionItem[] = [];
 
 			// If we're after "tablename.", only suggest columns from that table
 			if (context.afterTableDot && schema) {
