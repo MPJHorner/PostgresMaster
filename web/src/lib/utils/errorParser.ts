@@ -10,8 +10,17 @@ export interface PostgresError {
 }
 
 /**
- * Parse error string to extract Postgres error details
- * Attempts to parse JSON error or plain text error
+ * Parse error string to extract Postgres error details.
+ * Attempts to parse JSON error or plain text error format.
+ *
+ * @param errorStr - The error string from the database or proxy
+ * @returns A structured PostgresError object with extracted details
+ *
+ * @example
+ * ```typescript
+ * const error = parseError('ERROR: relation "users" does not exist (SQLSTATE 42P01)');
+ * // returns: { code: '42P01', message: 'relation "users" does not exist', ... }
+ * ```
  */
 export function parseError(errorStr: string): PostgresError {
 	// Try to parse as JSON first (if proxy sends structured error)
@@ -68,7 +77,17 @@ export function parseError(errorStr: string): PostgresError {
 }
 
 /**
- * Get user-friendly error code description
+ * Get user-friendly error code description for PostgreSQL error codes.
+ *
+ * @param code - PostgreSQL error code (e.g., "42P01", "23505")
+ * @returns A human-readable description of the error, or undefined if code is unknown
+ *
+ * @example
+ * ```typescript
+ * getErrorCodeDescription('42P01') // returns 'Undefined table'
+ * getErrorCodeDescription('23505') // returns 'Unique violation'
+ * getErrorCodeDescription('99999') // returns undefined
+ * ```
  */
 export function getErrorCodeDescription(code?: string): string | undefined {
 	if (!code) return undefined;
