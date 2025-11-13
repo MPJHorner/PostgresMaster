@@ -1254,14 +1254,14 @@ Create test queries file for manual testing:
 
 **File**: `docs/installation.md`
 
-- [ ] Add system requirements
-- [ ] Add download instructions
-- [ ] Add platform-specific instructions:
-  - [ ] Windows
-  - [ ] macOS
-  - [ ] Linux
-- [ ] Add troubleshooting section
-- [ ] Add FAQ
+- [x] Add system requirements
+- [x] Add download instructions
+- [x] Add platform-specific instructions:
+  - [x] Windows
+  - [x] macOS
+  - [x] Linux
+- [x] Add troubleshooting section
+- [x] Add FAQ
 
 **File**: `docs/usage.md`
 
