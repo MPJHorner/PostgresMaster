@@ -1,10 +1,38 @@
 @import 'tailwindcss';
 
+/* Global smooth transitions */
+* {
+	transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow,
+		transform;
+	transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+	transition-duration: 150ms;
+}
+
+/* Disable transitions for reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+	* {
+		transition-duration: 0ms !important;
+		animation-duration: 0ms !important;
+	}
+}
+
+/* Smooth scrolling */
+html {
+	scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	html {
+		scroll-behavior: auto;
+	}
+}
+
 /* Accessibility: Enhanced focus visible styles for keyboard navigation */
 *:focus-visible {
 	outline: 2px solid hsl(var(--primary));
 	outline-offset: 2px;
 	border-radius: 4px;
+	transition: outline-offset 0.1s ease-in-out;
 }
 
 /* Skip to main content link for keyboard users */
@@ -18,9 +46,60 @@
 	text-decoration: none;
 	border-radius: 4px;
 	z-index: 100;
+	transition: top 0.2s ease-in-out, left 0.2s ease-in-out;
 }
 
 .skip-to-main:focus {
 	top: 8px;
 	left: 8px;
+}
+
+/* Fade-in animation for page load */
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+		transform: translateY(10px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.animate-fade-in {
+	animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Subtle hover effect for cards */
+.card-hover {
+	transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.card-hover:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Loading pulse animation */
+@keyframes pulse {
+	0%,
+	100% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0.5;
+	}
+}
+
+.animate-pulse {
+	animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Smooth table row hover */
+tbody tr {
+	transition: background-color 0.15s ease-in-out;
+}
+
+tbody tr:hover {
+	background-color: hsl(var(--muted) / 0.3);
 }
