@@ -68,11 +68,13 @@
 			No queries executed yet. Run a query to see it here.
 		</div>
 	{:else}
-		<div class="space-y-2">
+		<div class="space-y-2" role="list" aria-label="Query history list">
 			{#each recentQueries as item (item.timestamp.getTime())}
 				<button
 					class="w-full rounded-lg border p-3 text-left transition-colors hover:bg-accent"
 					on:click={() => onQuerySelect(item.sql)}
+					role="listitem"
+					aria-label="Load query: {truncateSQL(item.sql, 40)} - {item.success ? 'succeeded' : 'failed'} - {formatTimestamp(item.timestamp)}"
 				>
 					<div class="mb-2 flex items-start justify-between gap-2">
 						<code class="flex-1 text-sm">{truncateSQL(item.sql)}</code>

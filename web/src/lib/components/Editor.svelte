@@ -136,8 +136,16 @@
 <div
 	class="editor-wrapper rounded-md border border-gray-700 overflow-hidden"
 	style="height: {height};"
+	role="region"
+	aria-label="SQL Query Editor"
 >
-	<div bind:this={editorContainer} class="editor-container w-full h-full"></div>
+	<div
+		bind:this={editorContainer}
+		class="editor-container w-full h-full"
+		role="textbox"
+		aria-multiline="true"
+		aria-label="SQL query input"
+	></div>
 </div>
 
 <style>

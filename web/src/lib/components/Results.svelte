@@ -51,8 +51,8 @@
 				<p>No rows returned</p>
 			</div>
 		{:else}
-			<div class="max-h-[500px] overflow-auto rounded-md border">
-				<Table>
+			<div class="max-h-[500px] overflow-auto rounded-md border" role="region" aria-label="Query results container">
+				<Table aria-label="Query results table with {data.rowCount} {data.rowCount === 1 ? 'row' : 'rows'}">
 					<TableHeader class="sticky top-0 bg-white dark:bg-slate-950 z-10">
 						<TableRow>
 							{#each data.columns as column}
@@ -71,7 +71,7 @@
 						{#each data.rows as row}
 							<TableRow>
 								{#each data.columns as column}
-									<TableCell class={isNull(row[column.name]) ? 'text-slate-400 italic' : ''}>
+									<TableCell class={isNull(row[column.name]) ? 'text-slate-500 dark:text-slate-400 italic' : ''}>
 										<span class="font-mono text-xs">
 											{formatValue(row[column.name])}
 										</span>
