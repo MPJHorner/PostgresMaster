@@ -1265,11 +1265,11 @@ Create test queries file for manual testing:
 
 **File**: `docs/usage.md`
 
-- [ ] Add connection instructions
-- [ ] Add query examples
-- [ ] Add autocomplete guide
-- [ ] Add keyboard shortcuts
-- [ ] Add tips & tricks
+- [x] Add connection instructions
+- [x] Add query examples
+- [x] Add autocomplete guide
+- [x] Add keyboard shortcuts
+- [x] Add tips & tricks
 
 ### 5.7 Documentation - Developer Facing
 
