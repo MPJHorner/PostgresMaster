@@ -1238,19 +1238,19 @@ Create test queries file for manual testing:
 
 **File**: `README.md` (root)
 
-- [ ] Add project title and description
-- [ ] Add badges (build status, license, etc.)
-- [ ] Add screenshot/GIF of app in action
-- [ ] Add "Features" section
-- [ ] Add "Quick Start" section:
-  - [ ] Download proxy
-  - [ ] Run proxy
-  - [ ] Open web app
-- [ ] Add "Installation" link to docs
-- [ ] Add "Documentation" link to docs
-- [ ] Add "Contributing" link
-- [ ] Add "License" section (AGPL-3.0)
-- [ ] Add credits/attribution
+- [x] Add project title and description
+- [x] Add badges (build status, license, etc.)
+- [x] Add screenshot/GIF of app in action
+- [x] Add "Features" section
+- [x] Add "Quick Start" section:
+  - [x] Download proxy
+  - [x] Run proxy
+  - [x] Open web app
+- [x] Add "Installation" link to docs
+- [x] Add "Documentation" link to docs
+- [x] Add "Contributing" link
+- [x] Add "License" section (AGPL-3.0)
+- [x] Add credits/attribution
 
 **File**: `docs/installation.md`
 
